@@ -10,6 +10,7 @@ object SettingsPrefs {
     private const val KEY_LAST_REMINDER = "last_reminder_at"
     private const val KEY_USER_NAME = "user_name"
     private const val KEY_NAME_ASKED = "name_asked"
+    private const val KEY_ONBOARDING_DONE = "onboarding_done"
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(FILE, Context.MODE_PRIVATE)
@@ -50,5 +51,13 @@ object SettingsPrefs {
 
     fun setNameAsked(context: Context) {
         prefs(context).edit().putBoolean(KEY_NAME_ASKED, true).apply()
+    }
+
+    /** True once the Welcome, Onboarding and Permission screens have been completed. */
+    fun isOnboardingDone(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_ONBOARDING_DONE, false)
+
+    fun setOnboardingDone(context: Context) {
+        prefs(context).edit().putBoolean(KEY_ONBOARDING_DONE, true).apply()
     }
 }

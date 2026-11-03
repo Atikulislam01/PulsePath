@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.pulsepath.app.components.BottomNavBar
+import com.pulsepath.app.data.SettingsPrefs
 import com.pulsepath.app.screens.AppCategoriesScreen
 import com.pulsepath.app.screens.AppDetailScreen
 import com.pulsepath.app.screens.AppSessionTimelineScreen
@@ -32,9 +35,15 @@ import com.pulsepath.app.ui.theme.BackgroundWhite
 
 @Composable
 fun PulsePathNavHost() {
+    val context = LocalContext.current
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+
+    // Returning users skip the setup screens and start on Home
+    val startDestination = remember {
+        if (SettingsPrefs.isOnboardingDone(context)) Routes.HOME else Routes.WELCOME
+    }
 
     // The bottom bar shows on the 5 tabs and on the detail screens
     val showBottomBar = currentRoute in Routes.bottomTabs ||
@@ -47,8 +56,9 @@ fun PulsePathNavHost() {
         else -> currentRoute
     }
 
-    // Goes to Home and clears everything before it (setup screens, old Home)
+    // Goes to Home, clears everything before it, and remembers that setup is finished
     val goToHome = {
+        SettingsPrefs.setOnboardingDone(context)
         navController.navigate(Routes.HOME) {
             popUpTo(navController.graph.id) { inclusive = true }
             launchSingleTop = true
@@ -80,7 +90,7 @@ fun PulsePathNavHost() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Routes.WELCOME,
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Routes.WELCOME) {
@@ -127,7 +137,7 @@ fun PulsePathNavHost() {
                 )
             }
 
-            // The route argument is still called "appName", but it now carries the package name
+            // The route argument is still called "appName", but it carries the package name
             composable(
                 route = Routes.APP_DETAIL,
                 arguments = listOf(navArgument("appName") { type = NavType.StringType })
