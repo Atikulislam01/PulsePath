@@ -39,6 +39,8 @@ fun openUsageAccessSettings(context: Context) {
         context.startActivity(intent)
     } catch (e: Exception) {
         // Fallback: the general list of apps
-        context.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+        context.startActivity(
+            Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        )
     }
 }
