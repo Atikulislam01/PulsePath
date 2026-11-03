@@ -1,0 +1,187 @@
+package com.pulsepath.app.navigation
+
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.pulsepath.app.components.BottomNavBar
+import com.pulsepath.app.screens.AppCategoriesScreen
+import com.pulsepath.app.screens.AppDetailScreen
+import com.pulsepath.app.screens.AppSessionTimelineScreen
+import com.pulsepath.app.screens.AppSwitchingScreen
+import com.pulsepath.app.screens.HomeScreen
+import com.pulsepath.app.screens.InsightsScreen
+import com.pulsepath.app.screens.NoDataScreen
+import com.pulsepath.app.screens.OnboardingScreen
+import com.pulsepath.app.screens.PrivacyScreen
+import com.pulsepath.app.screens.ReportsScreen
+import com.pulsepath.app.screens.SettingsScreen
+import com.pulsepath.app.screens.UsageAccessScreen
+import com.pulsepath.app.screens.WeeklyTrendsScreen
+import com.pulsepath.app.screens.WelcomeScreen
+import com.pulsepath.app.ui.theme.BackgroundWhite
+
+@Composable
+fun PulsePathNavHost() {
+    val navController = rememberNavController()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+
+    // The bottom bar shows on the 5 tabs and on the detail screens
+    val showBottomBar = currentRoute in Routes.bottomTabs ||
+            currentRoute in Routes.detailRoutesWithBar
+
+    // Which tab is highlighted. Sub-screens highlight the tab they belong to.
+    val highlightedRoute = when (currentRoute) {
+        Routes.CATEGORIES, Routes.SWITCHING -> Routes.INSIGHTS
+        Routes.WEEKLY_TRENDS, Routes.PRIVACY -> Routes.REPORTS
+        else -> currentRoute
+    }
+
+    // Goes to Home and clears everything before it (setup screens, old Home)
+    val goToHome = {
+        navController.navigate(Routes.HOME) {
+            popUpTo(navController.graph.id) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
+    // Switches to one of the 5 bottom tabs
+    val goToTab: (String) -> Unit = { route ->
+        navController.navigate(route) {
+            popUpTo(Routes.HOME) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = BackgroundWhite,
+        // Each screen handles its own status bar spacing
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        bottomBar = {
+            if (showBottomBar) {
+                BottomNavBar(
+                    currentRoute = highlightedRoute,
+                    onItemClick = goToTab
+                )
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Routes.WELCOME,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(Routes.WELCOME) {
+                WelcomeScreen(
+                    onGetStarted = { navController.navigate(Routes.ONBOARDING) }
+                )
+            }
+
+            composable(Routes.ONBOARDING) {
+                OnboardingScreen(
+                    onBack = { navController.popBackStack() },
+                    onNext = { navController.navigate(Routes.USAGE_ACCESS) }
+                )
+            }
+
+            composable(Routes.USAGE_ACCESS) {
+                UsageAccessScreen(
+                    onBack = { navController.popBackStack() },
+                    onGranted = { goToHome() },
+                    onNotNow = { goToHome() }
+                )
+            }
+
+            composable(Routes.NO_DATA) {
+                NoDataScreen(
+                    onBack = { navController.popBackStack() },
+                    onStartMonitoring = { navController.navigate(Routes.USAGE_ACCESS) },
+                    onLearnMore = { navController.navigate(Routes.PRIVACY) }
+                )
+            }
+
+            composable(Routes.HOME) {
+                HomeScreen(
+                    onGrantPermission = { navController.navigate(Routes.USAGE_ACCESS) }
+                )
+            }
+
+            composable(Routes.APPS) {
+                AppSessionTimelineScreen(
+                    onBack = { navController.popBackStack() },
+                    onSessionClick = { packageName ->
+                        navController.navigate(Routes.appDetail(packageName))
+                    }
+                )
+            }
+
+            // The route argument is still called "appName", but it now carries the package name
+            composable(
+                route = Routes.APP_DETAIL,
+                arguments = listOf(navArgument("appName") { type = NavType.StringType })
+            ) { entry ->
+                val packageName = entry.arguments?.getString("appName") ?: ""
+                AppDetailScreen(
+                    packageName = packageName,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(Routes.INSIGHTS) {
+                InsightsScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenSwitching = { navController.navigate(Routes.SWITCHING) },
+                    onOpenCategories = { navController.navigate(Routes.CATEGORIES) }
+                )
+            }
+
+            composable(Routes.SWITCHING) {
+                AppSwitchingScreen(onBack = { navController.popBackStack() })
+            }
+
+            composable(Routes.CATEGORIES) {
+                AppCategoriesScreen(onBack = { navController.popBackStack() })
+            }
+
+            composable(Routes.REPORTS) {
+                ReportsScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenWeekly = { navController.navigate(Routes.WEEKLY_TRENDS) },
+                    onOpenPrivacy = { navController.navigate(Routes.PRIVACY) },
+                    onOpenNoData = { navController.navigate(Routes.NO_DATA) }
+                )
+            }
+
+            composable(Routes.WEEKLY_TRENDS) {
+                WeeklyTrendsScreen(onBack = { navController.popBackStack() })
+            }
+
+            composable(Routes.PRIVACY) {
+                PrivacyScreen(
+                    onBack = { navController.popBackStack() },
+                    onExport = { goToTab(Routes.REPORTS) }
+                )
+            }
+
+            composable(Routes.SETTINGS) {
+                SettingsScreen(
+                    onBack = { navController.popBackStack() },
+                    onManageCategories = { navController.navigate(Routes.CATEGORIES) },
+                    onExportData = { goToTab(Routes.REPORTS) }
+                )
+            }
+        }
+    }
+}
