@@ -1,8 +1,10 @@
 package com.pulsepath.app.data
 
 import android.app.AppOpsManager
+import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Process
@@ -25,7 +27,26 @@ fun hasUsageAccess(context: Context): Boolean {
             context.packageName
         )
     }
-    return mode == AppOpsManager.MODE_ALLOWED
+
+    if (mode == AppOpsManager.MODE_ALLOWED) return true
+
+    // Some phones report "default" and rely on the normal permission instead
+    if (mode == AppOpsManager.MODE_DEFAULT &&
+        context.checkCallingOrSelfPermission(android.Manifest.permission.PACKAGE_USAGE_STATS) ==
+        PackageManager.PERMISSION_GRANTED
+    ) {
+        return true
+    }
+
+    // Last test: try to really read the last day of usage
+    return try {
+        val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
+        val now = System.currentTimeMillis()
+        usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, now - 24L * 3_600_000L, now)
+            .isNotEmpty()
+    } catch (e: Exception) {
+        false
+    }
 }
 
 /** Opens Android's "Usage access" settings page. */
@@ -35,7 +56,7 @@ fun openUsageAccessSettings(context: Context) {
         val intent = Intent(
             Settings.ACTION_USAGE_ACCESS_SETTINGS,
             Uri.parse("package:${context.packageName}")
-        )
+        ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
     } catch (e: Exception) {
         // Fallback: the general list of apps
