@@ -68,20 +68,19 @@ import com.pulsepath.app.ui.theme.TextMuted
 fun SettingsScreen(
     onBack: () -> Unit,
     onManageCategories: () -> Unit,
-    onExportData: () -> Unit
+    onExportData: () -> Unit,
+    onOpenHelp: () -> Unit
 ) {
     val context = LocalContext.current
 
-    // These start from what was saved last time
     var monitoring by remember { mutableStateOf(SettingsPrefs.isMonitoringEnabled(context)) }
     var reminders by remember { mutableStateOf(SettingsPrefs.areRemindersEnabled(context)) }
     var granted by remember { mutableStateOf(hasUsageAccess(context)) }
 
     var showRecoverDialog by remember { mutableStateOf(false) }
-    var storageVersion by remember { mutableIntStateOf(0) }   // bumps to refresh the saved-days count
+    var storageVersion by remember { mutableIntStateOf(0) }
     val savedDays = remember(storageVersion) { HistoryStore.storedDayCount(context) }
 
-    // Android 13 and newer show a pop-up asking to allow notifications
     val notificationPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { allowed ->
@@ -96,7 +95,6 @@ fun SettingsScreen(
         }
     }
 
-    // Re-check the permission and the saved days whenever the user comes back to the app
     val lifecycle = (context as? ComponentActivity)?.lifecycle
     DisposableEffect(lifecycle) {
         if (lifecycle == null) {
@@ -162,9 +160,9 @@ fun SettingsScreen(
             SettingsRow(label = "Enable Monitoring") {
                 PulseSwitch(
                     checked = monitoring,
-                    onChange = {
-                        monitoring = it
-                        SettingsPrefs.setMonitoringEnabled(context, it)
+                    onChange = { value ->
+                        monitoring = value
+                        SettingsPrefs.setMonitoringEnabled(context, value)
                         ReminderScheduler.sync(context)
                     }
                 )
@@ -266,7 +264,7 @@ fun SettingsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         SettingsCard(title = "Other") {
-            SettingsRow(label = "Help & Support", onClick = { }) {
+            SettingsRow(label = "Help & Support", onClick = onOpenHelp) {
                 Chevron()
             }
         }
