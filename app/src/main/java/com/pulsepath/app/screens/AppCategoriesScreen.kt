@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pulsepath.app.components.ArtImage
 import com.pulsepath.app.components.BackArrow
 import com.pulsepath.app.components.PackageAppIcon
 import com.pulsepath.app.data.CATEGORY_EDUCATION
@@ -70,17 +71,18 @@ import kotlinx.coroutines.withContext
 private data class CategoryCardData(
     val title: String,        // what the tile says
     val key: String,          // the category name used in the data
-    val icon: ImageVector,
+    val imageName: String,    // PNG name in res/drawable
+    val icon: ImageVector,    // used if the PNG is missing
     val color: Color
 )
 
 private val categoryCards = listOf(
-    CategoryCardData("Social media", CATEGORY_SOCIAL, Icons.Rounded.Forum, Color(0xFFE5484D)),
-    CategoryCardData("Messaging", CATEGORY_MESSAGING, Icons.Rounded.Chat, Color(0xFFF59E0B)),
-    CategoryCardData("Games", CATEGORY_GAMING, Icons.Rounded.SportsEsports, Color(0xFF9B5DE5)),
-    CategoryCardData("Video streaming", CATEGORY_VIDEO, Icons.Rounded.LiveTv, Color(0xFF6C5CE7)),
-    CategoryCardData("Productivity", CATEGORY_PRODUCTIVITY, Icons.Rounded.TrendingUp, Color(0xFF0E9F8E)),
-    CategoryCardData("Education", CATEGORY_EDUCATION, Icons.Rounded.School, Color(0xFF3F7BE8))
+    CategoryCardData("Social media", CATEGORY_SOCIAL, "category_social", Icons.Rounded.Forum, Color(0xFFE5484D)),
+    CategoryCardData("Messaging", CATEGORY_MESSAGING, "category_messaging", Icons.Rounded.Chat, Color(0xFFF59E0B)),
+    CategoryCardData("Games", CATEGORY_GAMING, "category_games", Icons.Rounded.SportsEsports, Color(0xFF9B5DE5)),
+    CategoryCardData("Video streaming", CATEGORY_VIDEO, "category_video", Icons.Rounded.LiveTv, Color(0xFF6C5CE7)),
+    CategoryCardData("Productivity", CATEGORY_PRODUCTIVITY, "category_productivity", Icons.Rounded.TrendingUp, Color(0xFF0E9F8E)),
+    CategoryCardData("Education", CATEGORY_EDUCATION, "category_education", Icons.Rounded.School, Color(0xFF3F7BE8))
 )
 
 @Composable
@@ -223,19 +225,27 @@ private fun CategoryTile(
             .padding(20.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Box(
+        // Your Figma icon (category_*.png), or the old round icon if the PNG is missing
+        ArtImage(
+            name = category.imageName,
             modifier = Modifier
-                .size(56.dp)
-                .clip(CircleShape)
-                .background(category.color.copy(alpha = 0.14f)),
-            contentAlignment = Alignment.Center
+                .size(60.dp)
+                .align(Alignment.Start)
         ) {
-            Icon(
-                imageVector = category.icon,
-                contentDescription = null,
-                tint = category.color,
-                modifier = Modifier.size(30.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(category.color.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = category.icon,
+                    contentDescription = null,
+                    tint = category.color,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
         }
 
         Column {
