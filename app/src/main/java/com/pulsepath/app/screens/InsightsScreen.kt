@@ -152,7 +152,9 @@ fun InsightsScreen(
 
                 else -> {
                     InsightRow(
-                        leading = { IconBadge(Icons.Rounded.Forum, Color(0xFF3F7BE8)) },
+                        leading = {
+                            IconBadge("insight_social", Icons.Rounded.Forum, Color(0xFF3F7BE8))
+                        },
                         text = socialText(data, bold)
                     )
 
@@ -161,13 +163,14 @@ fun InsightsScreen(
                     InsightRow(
                         leading = {
                             if (data.recentPackage != null) {
+                                // The real icon of the app, so this one stays automatic
                                 PackageAppIcon(
                                     packageName = data.recentPackage,
                                     appName = data.recentAppName ?: "",
                                     size = 40.dp
                                 )
                             } else {
-                                IconBadge(Icons.Rounded.Schedule, Color(0xFFFF8A00))
+                                IconBadge("insight_recent", Icons.Rounded.Schedule, Color(0xFFFF8A00))
                             }
                         },
                         text = recentText(data, bold)
@@ -176,7 +179,9 @@ fun InsightsScreen(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     InsightRow(
-                        leading = { IconBadge(Icons.Rounded.Timer, Color(0xFFE5484D)) },
+                        leading = {
+                            IconBadge("insight_session", Icons.Rounded.Timer, Color(0xFFE5484D))
+                        },
                         text = sessionText(data, bold)
                     )
                 }
@@ -186,6 +191,7 @@ fun InsightsScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         NavCard(
+            imageName = "nav_switching",
             icon = Icons.Rounded.SwapHoriz,
             color = Color(0xFF3F7BE8),
             title = "App switching",
@@ -196,6 +202,7 @@ fun InsightsScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         NavCard(
+            imageName = "nav_categories",
             icon = Icons.Rounded.GridView,
             color = Color(0xFF9B5DE5),
             title = "App categories",
@@ -206,10 +213,12 @@ fun InsightsScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         // Your insights_illustration.png, or the placeholder
-        val artModifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
-        ArtImage(name = "insights_illustration", modifier = artModifier) {
+        ArtImage(
+            name = "insights_illustration",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+        ) {
             WellbeingIllustration(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -301,6 +310,7 @@ private fun sessionText(d: InsightsData, bold: SpanStyle): AnnotatedString = bui
 
 @Composable
 private fun NavCard(
+    imageName: String,
     icon: ImageVector,
     color: Color,
     title: String,
@@ -319,8 +329,11 @@ private fun NavCard(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(icon, color)
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconBadge(imageName, icon, color)
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
@@ -362,21 +375,24 @@ private fun InsightRow(
     }
 }
 
+/** Your Figma PNG with the given name, or the old rounded icon if the PNG is missing. */
 @Composable
-private fun IconBadge(icon: ImageVector, tint: Color) {
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(tint.copy(alpha = 0.12f)),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = tint,
-            modifier = Modifier.size(24.dp)
-        )
+private fun IconBadge(imageName: String, icon: ImageVector, tint: Color) {
+    ArtImage(name = imageName, modifier = Modifier.size(40.dp)) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(tint.copy(alpha = 0.12f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }
 

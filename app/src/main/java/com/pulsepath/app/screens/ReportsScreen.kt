@@ -40,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -47,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pulsepath.app.components.ArtImage
 import com.pulsepath.app.components.BackArrow
 import com.pulsepath.app.components.PrimaryButton
 import com.pulsepath.app.data.ExportFormat
@@ -79,15 +81,16 @@ private data class ExportOption(
     val title: String,
     val subtitle: String,
     val badge: String,
+    val imageName: String,
     val icon: ImageVector,
     val color: Color,
     val enabled: Boolean
 )
 
 private val exportOptions = listOf(
-    ExportOption("CSV", "Spreadsheet-ready table", "Recommended", Icons.Rounded.TableChart, Color(0xFF4F46E5), true),
-    ExportOption("JSON", "Structured metadata", "Developer-friendly", Icons.Rounded.Code, Color(0xFF1E90FF), true),
-    ExportOption("Summary PDF", "Readable report", "Coming soon", Icons.Rounded.PictureAsPdf, Color(0xFF6B7A99), false)
+    ExportOption("CSV", "Spreadsheet-ready table", "Recommended", "export_csv", Icons.Rounded.TableChart, Color(0xFF4F46E5), true),
+    ExportOption("JSON", "Structured metadata", "Developer-friendly", "export_json", Icons.Rounded.Code, Color(0xFF1E90FF), true),
+    ExportOption("Summary PDF", "Readable report", "Coming soon", "export_pdf", Icons.Rounded.PictureAsPdf, Color(0xFF6B7A99), false)
 )
 
 @Composable
@@ -299,6 +302,7 @@ fun ReportsScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         ReportLinkCard(
+            imageName = "link_weekly",
             icon = Icons.Rounded.ShowChart,
             color = Color(0xFF6C5CE7),
             title = "Weekly Trends",
@@ -307,6 +311,7 @@ fun ReportsScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         ReportLinkCard(
+            imageName = "link_privacy",
             icon = Icons.Rounded.Lock,
             color = Color(0xFF12A57F),
             title = "Privacy & Consent",
@@ -315,6 +320,7 @@ fun ReportsScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         ReportLinkCard(
+            imageName = "link_empty",
             icon = Icons.Rounded.Inbox,
             color = Color(0xFF3F7BE8),
             title = "Empty state preview",
@@ -361,19 +367,27 @@ private fun ExportRow(option: ExportOption, selected: Boolean, onClick: () -> Un
             .padding(horizontal = 18.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+        // Your Figma PNG, or the old icon if the PNG is missing
+        ArtImage(
+            name = option.imageName,
             modifier = Modifier
                 .size(44.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(option.color.copy(alpha = 0.14f * alpha)),
-            contentAlignment = Alignment.Center
+                .alpha(alpha)
         ) {
-            Icon(
-                imageVector = option.icon,
-                contentDescription = null,
-                tint = option.color.copy(alpha = alpha),
-                modifier = Modifier.size(26.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(option.color.copy(alpha = 0.14f * alpha)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = option.icon,
+                    contentDescription = null,
+                    tint = option.color.copy(alpha = alpha),
+                    modifier = Modifier.size(26.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -403,6 +417,7 @@ private fun ExportRow(option: ExportOption, selected: Boolean, onClick: () -> Un
 
 @Composable
 private fun ReportLinkCard(
+    imageName: String,
     icon: ImageVector,
     color: Color,
     title: String,
@@ -420,19 +435,22 @@ private fun ReportLinkCard(
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(CircleShape)
-                .background(color.copy(alpha = 0.14f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(24.dp)
-            )
+        // Your Figma PNG, or the old round icon if the PNG is missing
+        ArtImage(name = imageName, modifier = Modifier.size(44.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {

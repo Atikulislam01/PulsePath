@@ -28,6 +28,7 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.Movie
+import androidx.compose.material.icons.rounded.School
 import androidx.compose.material.icons.rounded.SportsEsports
 import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.AlertDialog
@@ -59,8 +60,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.pulsepath.app.components.ArtImage
 import com.pulsepath.app.components.PrimaryButton
 import com.pulsepath.app.components.ProfileAvatar
+import com.pulsepath.app.data.CATEGORY_EDUCATION
 import com.pulsepath.app.data.CATEGORY_GAMING
 import com.pulsepath.app.data.CATEGORY_MESSAGING
 import com.pulsepath.app.data.CATEGORY_PRODUCTIVITY
@@ -490,7 +493,19 @@ private fun categoryStyle(name: String): Pair<Color, ImageVector> = when (name) 
     CATEGORY_VIDEO -> Color(0xFF3F7BE8) to Icons.Rounded.Movie
     CATEGORY_GAMING -> Color(0xFF0E9F8E) to Icons.Rounded.SportsEsports
     CATEGORY_PRODUCTIVITY -> Color(0xFF12B76A) to Icons.Rounded.TrendingUp
+    CATEGORY_EDUCATION -> Color(0xFF3F7BE8) to Icons.Rounded.School
     else -> Color(0xFF6B7A99) to Icons.Rounded.GridView
+}
+
+/** The name of the Figma PNG in res/drawable for each category. */
+private fun categoryImageName(name: String): String = when (name) {
+    CATEGORY_SOCIAL -> "category_social"
+    CATEGORY_MESSAGING -> "category_messaging"
+    CATEGORY_VIDEO -> "category_video"
+    CATEGORY_GAMING -> "category_games"
+    CATEGORY_PRODUCTIVITY -> "category_productivity"
+    CATEGORY_EDUCATION -> "category_education"
+    else -> "category_other"
 }
 
 @Composable
@@ -501,19 +516,25 @@ private fun CategoryRow(category: CategoryTotal, fraction: Float) {
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(color.copy(alpha = 0.12f)),
-            contentAlignment = Alignment.Center
+        // Your Figma icon, or the old round icon if the PNG is missing
+        ArtImage(
+            name = categoryImageName(category.name),
+            modifier = Modifier.size(48.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(26.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(14.dp))
