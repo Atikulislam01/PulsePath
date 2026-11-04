@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,7 +64,7 @@ import java.util.Locale
 @Composable
 fun AppSessionTimelineScreen(
     onBack: () -> Unit,
-    onSessionClick: (String) -> Unit   // receives the app's package name
+    onSessionClick: (String) -> Unit
 ) {
     val context = LocalContext.current
     val granted = hasUsageAccess(context)
@@ -73,7 +74,6 @@ fun AppSessionTimelineScreen(
     val formatter = remember { DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH) }
     val dateShape = RoundedCornerShape(28.dp)
 
-    // Load the selected day on a background thread
     val snapshot by produceState<UsageSnapshot?>(initialValue = null, date, granted) {
         value = null
         value = if (granted) {
@@ -110,7 +110,6 @@ fun AppSessionTimelineScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Date selector
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -160,8 +159,9 @@ fun AppSessionTimelineScreen(
             }
 
             else -> {
-                // Ignore very short sessions (under 10 seconds) to keep the list readable
-                val sessions = snap.sessions.filter { it.durationMillis >= 10_000L }
+                val sessions = snap.sessions
+                    .filter { it.durationMillis >= 10_000L }
+                    .sortedByDescending { it.startMillis }
 
                 if (sessions.isEmpty()) {
                     CenterMessage("No app sessions recorded on this day.")
@@ -195,7 +195,7 @@ fun AppSessionTimelineScreen(
 }
 
 @Composable
-private fun androidx.compose.foundation.layout.ColumnScope.CenterMessage(text: String) {
+private fun ColumnScope.CenterMessage(text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
