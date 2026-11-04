@@ -27,7 +27,6 @@ import androidx.compose.material.icons.rounded.Chat
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.GridView
-import androidx.compose.material.icons.rounded.Laptop
 import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material.icons.rounded.SportsEsports
 import androidx.compose.material.icons.rounded.TrendingUp
@@ -61,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.pulsepath.app.components.PrimaryButton
+import com.pulsepath.app.components.ProfileAvatar
 import com.pulsepath.app.data.CATEGORY_GAMING
 import com.pulsepath.app.data.CATEGORY_MESSAGING
 import com.pulsepath.app.data.CATEGORY_PRODUCTIVITY
@@ -214,7 +214,7 @@ private fun HomeContent(data: HomeData) {
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Greeting + illustration
+        // Greeting + profile picture
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -232,20 +232,7 @@ private fun HomeContent(data: HomeData) {
                     .clickable { showNameDialog = true }   // tap the greeting to change your name
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Box(
-                modifier = Modifier
-                    .size(88.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(Color(0xFFE3ECFA)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Laptop,
-                    contentDescription = null,
-                    tint = Color(0xFF3B5BFF),
-                    modifier = Modifier.size(48.dp)
-                )
-            }
+            ProfileAvatar(size = 88.dp)
         }
 
         Spacer(modifier = Modifier.height(20.dp))
