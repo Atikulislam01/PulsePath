@@ -21,6 +21,8 @@ import com.pulsepath.app.screens.AppCategoriesScreen
 import com.pulsepath.app.screens.AppDetailScreen
 import com.pulsepath.app.screens.AppSessionTimelineScreen
 import com.pulsepath.app.screens.AppSwitchingScreen
+import com.pulsepath.app.screens.DataTransparencyScreen
+import com.pulsepath.app.screens.HelpScreen
 import com.pulsepath.app.screens.HomeScreen
 import com.pulsepath.app.screens.InsightsScreen
 import com.pulsepath.app.screens.NoDataScreen
@@ -52,7 +54,8 @@ fun PulsePathNavHost() {
     // Which tab is highlighted. Sub-screens highlight the tab they belong to.
     val highlightedRoute = when (currentRoute) {
         Routes.CATEGORIES, Routes.SWITCHING -> Routes.INSIGHTS
-        Routes.WEEKLY_TRENDS, Routes.PRIVACY -> Routes.REPORTS
+        Routes.WEEKLY_TRENDS, Routes.PRIVACY, Routes.TRANSPARENCY -> Routes.REPORTS
+        Routes.HELP -> Routes.SETTINGS
         else -> currentRoute
     }
 
@@ -118,7 +121,7 @@ fun PulsePathNavHost() {
                 NoDataScreen(
                     onBack = { navController.popBackStack() },
                     onStartMonitoring = { navController.navigate(Routes.USAGE_ACCESS) },
-                    onLearnMore = { navController.navigate(Routes.PRIVACY) }
+                    onLearnMore = { navController.navigate(Routes.TRANSPARENCY) }
                 )
             }
 
@@ -181,16 +184,26 @@ fun PulsePathNavHost() {
             composable(Routes.PRIVACY) {
                 PrivacyScreen(
                     onBack = { navController.popBackStack() },
-                    onExport = { goToTab(Routes.REPORTS) }
+                    onExport = { goToTab(Routes.REPORTS) },
+                    onOpenTransparency = { navController.navigate(Routes.TRANSPARENCY) }
                 )
+            }
+
+            composable(Routes.TRANSPARENCY) {
+                DataTransparencyScreen(onBack = { navController.popBackStack() })
             }
 
             composable(Routes.SETTINGS) {
                 SettingsScreen(
                     onBack = { navController.popBackStack() },
                     onManageCategories = { navController.navigate(Routes.CATEGORIES) },
-                    onExportData = { goToTab(Routes.REPORTS) }
+                    onExportData = { goToTab(Routes.REPORTS) },
+                    onOpenHelp = { navController.navigate(Routes.HELP) }
                 )
+            }
+
+            composable(Routes.HELP) {
+                HelpScreen(onBack = { navController.popBackStack() })
             }
         }
     }

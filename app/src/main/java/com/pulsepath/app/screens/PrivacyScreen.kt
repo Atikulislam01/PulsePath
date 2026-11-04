@@ -65,7 +65,8 @@ import com.pulsepath.app.ui.theme.TextMuted
 @Composable
 fun PrivacyScreen(
     onBack: () -> Unit,
-    onExport: () -> Unit
+    onExport: () -> Unit,
+    onOpenTransparency: () -> Unit
 ) {
     val context = LocalContext.current
     var usageGranted by remember { mutableStateOf(hasUsageAccess(context)) }
@@ -161,7 +162,7 @@ fun PrivacyScreen(
             color = Color(0xFF0B6E99),
             title = "Data Transparency",
             subtitle = "Learn what we collect",
-            onClick = { }
+            onClick = onOpenTransparency
         ) {
             ChevronIcon()
         }

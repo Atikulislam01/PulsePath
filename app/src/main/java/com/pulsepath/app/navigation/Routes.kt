@@ -20,11 +20,13 @@ object Routes {
     const val SWITCHING = "app_switching"
     const val WEEKLY_TRENDS = "weekly_trends"
     const val PRIVACY = "privacy"
+    const val TRANSPARENCY = "transparency"
+    const val HELP = "help"
 
     val bottomTabs = listOf(HOME, APPS, INSIGHTS, REPORTS, SETTINGS)
 
     // Screens that are not tabs but still show the bottom bar
     val detailRoutesWithBar = listOf(
-        APP_DETAIL, CATEGORIES, SWITCHING, WEEKLY_TRENDS, PRIVACY
+        APP_DETAIL, CATEGORIES, SWITCHING, WEEKLY_TRENDS, PRIVACY, TRANSPARENCY, HELP
     )
 }
