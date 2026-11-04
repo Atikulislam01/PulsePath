@@ -22,8 +22,8 @@ android {
     buildTypes {
         release {
             optimization {
-                enable = true
-                packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+                // Shrinking is off so the release APK behaves exactly like the version you test with the cable
+                enable = false
             }
         }
     }

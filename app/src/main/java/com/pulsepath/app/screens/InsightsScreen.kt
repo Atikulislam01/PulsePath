@@ -49,6 +49,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pulsepath.app.components.ArtImage
 import com.pulsepath.app.components.BackArrow
 import com.pulsepath.app.components.PackageAppIcon
 import com.pulsepath.app.data.InsightsData
@@ -204,11 +205,17 @@ fun InsightsScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        WellbeingIllustration(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp)
-        )
+        // Your insights_illustration.png, or the placeholder
+        val artModifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+        ArtImage(name = "insights_illustration", modifier = artModifier) {
+            WellbeingIllustration(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(260.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
     }

@@ -33,8 +33,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pulsepath.app.components.ArtImageFill
 import com.pulsepath.app.components.BackArrow
 import com.pulsepath.app.components.PrimaryButton
 import com.pulsepath.app.ui.theme.BackgroundWhite
@@ -87,30 +89,9 @@ fun NoDataScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .clip(RoundedCornerShape(24.dp))
-                .background(Color(0xFFF4F7FC)),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(190.dp)
-                    .clip(CircleShape)
-                    .background(Color(0xFFE3E4FA)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Insights,
-                    contentDescription = null,
-                    tint = PrimaryPurple,
-                    modifier = Modifier.size(100.dp)
-                )
-            }
-            SmallBubble(Icons.Rounded.Favorite, Color(0xFF8E9CFF), (-110).dp, (-70).dp)
-            SmallBubble(Icons.Rounded.Person, Color(0xFF8E9CFF), 110.dp, (-70).dp)
+        // Your nodata_illustration.png, or the placeholder
+        ArtImageFill(name = "nodata_illustration") { mod ->
+            NoDataPlaceholder(modifier = mod)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -143,11 +124,38 @@ fun NoDataScreen(
 }
 
 @Composable
+private fun NoDataPlaceholder(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color(0xFFF4F7FC)),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(190.dp)
+                .clip(CircleShape)
+                .background(Color(0xFFE3E4FA)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Insights,
+                contentDescription = null,
+                tint = PrimaryPurple,
+                modifier = Modifier.size(100.dp)
+            )
+        }
+        SmallBubble(Icons.Rounded.Favorite, Color(0xFF8E9CFF), (-110).dp, (-70).dp)
+        SmallBubble(Icons.Rounded.Person, Color(0xFF8E9CFF), 110.dp, (-70).dp)
+    }
+}
+
+@Composable
 private fun SmallBubble(
     icon: ImageVector,
     tint: Color,
-    x: androidx.compose.ui.unit.Dp,
-    y: androidx.compose.ui.unit.Dp
+    x: Dp,
+    y: Dp
 ) {
     Box(
         modifier = Modifier

@@ -10,6 +10,7 @@ import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.pulsepath.app.MainActivity
+import com.pulsepath.app.R
 
 private const val CHANNEL_ID = "pulsepath_reminders"
 
@@ -49,8 +50,12 @@ fun showReminder(context: Context, title: String, text: String): Boolean {
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
+    // Uses your logo if it exists, otherwise the plain Android icon
+    val logo = context.resources.getIdentifier("app_logo", "drawable", context.packageName)
+    val icon = if (logo != 0) logo else android.R.drawable.ic_dialog_info
+
     val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-        .setSmallIcon(android.R.drawable.ic_dialog_info)   // placeholder icon, replaced during polish
+        .setSmallIcon(icon)
         .setContentTitle(title)
         .setContentText(text)
         .setStyle(NotificationCompat.BigTextStyle().bigText(text))
