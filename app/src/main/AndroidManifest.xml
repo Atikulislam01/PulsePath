@@ -45,6 +45,20 @@
             </intent-filter>
         </activity>
 
+        <!-- Optional typing speed tracking in other apps. The user must switch it on in Accessibility settings. -->
+        <service
+            android:name=".data.TypingMonitorService"
+            android:exported="true"
+            android:label="PulsePath typing speed"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/typing_service_config" />
+        </service>
+
         <!-- Lets PulsePath share exported CSV/JSON files with other apps -->
         <provider
             android:name="androidx.core.content.FileProvider"

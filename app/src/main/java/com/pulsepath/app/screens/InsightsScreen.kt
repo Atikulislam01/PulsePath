@@ -25,6 +25,7 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.Keyboard
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.SelfImprovement
 import androidx.compose.material.icons.rounded.SwapHoriz
@@ -72,7 +73,8 @@ private val WarningOrange = Color(0xFFF59E0B)
 fun InsightsScreen(
     onBack: () -> Unit,
     onOpenSwitching: () -> Unit,
-    onOpenCategories: () -> Unit
+    onOpenCategories: () -> Unit,
+    onOpenTyping: () -> Unit
 ) {
     val context = LocalContext.current
     val granted = hasUsageAccess(context)
@@ -208,6 +210,17 @@ fun InsightsScreen(
             title = "App categories",
             subtitle = "Organize your apps",
             onClick = onOpenCategories
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        NavCard(
+            imageName = "nav_typing",
+            icon = Icons.Rounded.Keyboard,
+            color = Color(0xFF12A57F),
+            title = "Typing speed",
+            subtitle = "Test how fast you type",
+            onClick = onOpenTyping
         )
 
         Spacer(modifier = Modifier.height(20.dp))
