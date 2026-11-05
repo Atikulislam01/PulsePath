@@ -74,7 +74,6 @@ import com.pulsepath.app.data.CATEGORY_MESSAGING
 import com.pulsepath.app.data.CATEGORY_PRODUCTIVITY
 import com.pulsepath.app.data.CATEGORY_SOCIAL
 import com.pulsepath.app.data.CATEGORY_VIDEO
-import com.pulsepath.app.data.CategoryTotal
 import com.pulsepath.app.data.HomeData
 import com.pulsepath.app.data.SettingsPrefs
 import com.pulsepath.app.data.UsageRepository
@@ -210,22 +209,19 @@ private fun HomeContent(data: HomeData, refreshKey: Int) {
     }
     val greeting = greetingForHour(hour)
 
-    // "By screen time": tap to show the total time of every app used today
-    var showApps by remember { mutableStateOf(false) }
-    val apps by produceState<List<AppUsageSummary>?>(
+    // Today's apps, used when a category is opened
+    val todayApps by produceState<List<AppUsageSummary>?>(
         initialValue = null,
-        showApps,
         data.todayMillis,
         refreshKey
     ) {
-        value = if (showApps) {
-            withContext(Dispatchers.IO) {
-                UsageRepository.loadDay(context, LocalDate.now()).apps
-            }
-        } else {
-            null
+        value = withContext(Dispatchers.IO) {
+            UsageRepository.loadDay(context, LocalDate.now()).apps
         }
     }
+
+    // Which category is open (only one at a time)
+    var openCategory by remember { mutableStateOf<String?>(null) }
 
     if (showNameDialog) {
         NameDialog(
@@ -284,39 +280,12 @@ private fun HomeContent(data: HomeData, refreshKey: Int) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Top category header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Top Category",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = TextDark
-            )
-            // Tap "By screen time" to open or close the list of apps
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable { showApps = !showApps }
-                    .padding(start = 8.dp, top = 4.dp, bottom = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "By screen time",
-                    fontSize = 14.sp,
-                    color = if (showApps) PrimaryPurple else TextMuted,
-                    fontWeight = if (showApps) FontWeight.Bold else FontWeight.Normal
-                )
-                Icon(
-                    imageVector = if (showApps) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                    contentDescription = if (showApps) "Hide apps" else "Show apps",
-                    tint = if (showApps) PrimaryPurple else TextDark
-                )
-            }
-        }
+        Text(
+            text = "Top Category",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = TextDark
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -330,23 +299,35 @@ private fun HomeContent(data: HomeData, refreshKey: Int) {
         } else {
             val topMillis = data.categories.first().millis.toFloat()
             data.categories.forEach { category ->
-                CategoryRow(category = category, fraction = category.millis / topMillis)
+                val isOpen = openCategory == category.name
+
+                CategoryRow(
+                    name = category.name,
+                    millis = category.millis,
+                    fraction = category.millis / topMillis,
+                    isOpen = isOpen,
+                    onClick = { openCategory = if (isOpen) null else category.name }
+                )
+
+                // The apps inside this category
+                if (isOpen) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CategoryAppList(
+                        apps = todayApps?.filter { it.category == category.name }
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
 
-        // The apps used today with their total time
-        if (showApps) {
-            Spacer(modifier = Modifier.height(8.dp))
-            AppTimeList(apps = apps)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
+/** The apps of one category with their sessions and total time. null means still loading. */
 @Composable
-private fun AppTimeList(apps: List<AppUsageSummary>?) {
+private fun CategoryAppList(apps: List<AppUsageSummary>?) {
     val shape = RoundedCornerShape(24.dp)
 
     Column(
@@ -354,31 +335,23 @@ private fun AppTimeList(apps: List<AppUsageSummary>?) {
             .fillMaxWidth()
             .clip(shape)
             .border(2.dp, CardBorder, shape)
-            .padding(horizontal = 18.dp, vertical = 16.dp)
+            .padding(horizontal = 18.dp, vertical = 8.dp)
     ) {
-        Text(
-            text = "Time per app today",
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Bold,
-            color = TextDark
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
         when {
             apps == null -> Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(80.dp),
+                    .height(70.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = PrimaryPurple)
             }
 
             apps.isEmpty() -> Text(
-                text = "No apps used yet today.",
+                text = "No apps used in this category today.",
                 fontSize = 15.sp,
                 color = TextMuted,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(vertical = 12.dp)
             )
 
             else -> apps.forEachIndexed { index, app ->
@@ -637,16 +610,26 @@ private fun categoryImageName(name: String): String = when (name) {
 }
 
 @Composable
-private fun CategoryRow(category: CategoryTotal, fraction: Float) {
-    val (color, icon) = categoryStyle(category.name)
+private fun CategoryRow(
+    name: String,
+    millis: Long,
+    fraction: Float,
+    isOpen: Boolean,
+    onClick: () -> Unit
+) {
+    val (color, icon) = categoryStyle(name)
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Your Figma icon, or the old round icon if the PNG is missing
         ArtImage(
-            name = categoryImageName(category.name),
+            name = categoryImageName(name),
             modifier = Modifier.size(48.dp)
         ) {
             Box(
@@ -670,20 +653,28 @@ private fun CategoryRow(category: CategoryTotal, fraction: Float) {
         Column(modifier = Modifier.weight(1f)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = category.name,
+                    text = name,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TextDark
                 )
-                Text(
-                    text = formatDuration(category.millis),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextDark
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = formatDuration(millis),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextDark
+                    )
+                    Icon(
+                        imageVector = if (isOpen) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                        contentDescription = if (isOpen) "Hide apps" else "Show apps",
+                        tint = TextMuted
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
