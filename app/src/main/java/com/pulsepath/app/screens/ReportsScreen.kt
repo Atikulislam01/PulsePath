@@ -1,6 +1,13 @@
 package com.pulsepath.app.screens
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,13 +28,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Inbox
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.rounded.ShowChart
 import androidx.compose.material.icons.rounded.TableChart
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -72,9 +84,9 @@ import kotlinx.coroutines.withContext
 
 // Label and number of days for each report period
 private val periodOptions = listOf(
+    "Today" to 1,
     "Last 7 days" to 7,
-    "Last 30 days" to 30,
-    "Today" to 1
+    "Last 30 days" to 30
 )
 
 private data class ExportOption(
@@ -104,7 +116,7 @@ fun ReportsScreen(
     val scope = rememberCoroutineScope()
     val granted = hasUsageAccess(context)
 
-    var periodIndex by remember { mutableIntStateOf(0) }
+    var periodIndex by remember { mutableIntStateOf(1) }   // starts on "Last 7 days"
     var selectedExport by remember { mutableIntStateOf(0) }
     var exporting by remember { mutableStateOf(false) }
 
@@ -169,33 +181,35 @@ fun ReportsScreen(
                     letterSpacing = 0.5.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = periodLabel,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextDark
-                )
+                // The period name fades when you pick another one
+                AnimatedContent(
+                    targetState = periodLabel,
+                    transitionSpec = { fadeIn(tween(250)) togetherWith fadeOut(tween(150)) },
+                    label = "periodLabel"
+                ) { label ->
+                    Text(
+                        text = label,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextDark
+                    )
+                }
             }
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(SuccessGreenBg)
-                    .clickable { periodIndex = (periodIndex + 1) % periodOptions.size }
-                    .padding(horizontal = 24.dp, vertical = 12.dp)
-            ) {
-                Text(
-                    text = "Change ▾",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SuccessGreen
-                )
-            }
+
+            PeriodDropdown(
+                selectedIndex = periodIndex,
+                onSelect = { periodIndex = it }
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = if (days == 7) "Weekly summary" else "Summary",
+            text = when (days) {
+                1 -> "Today's summary"
+                7 -> "Weekly summary"
+                else -> "Summary"
+            },
             fontSize = 22.sp,
             fontWeight = FontWeight.ExtraBold,
             color = TextDark
@@ -329,6 +343,91 @@ fun ReportsScreen(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+/** The animated "Change" button with a drop-down list of periods. */
+@Composable
+private fun PeriodDropdown(
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    // The pill fills with green while the menu is open, and the arrow turns upside down
+    val background by animateColorAsState(
+        targetValue = if (expanded) SuccessGreen else SuccessGreenBg,
+        animationSpec = tween(200),
+        label = "pillBackground"
+    )
+    val content by animateColorAsState(
+        targetValue = if (expanded) Color.White else SuccessGreen,
+        animationSpec = tween(200),
+        label = "pillContent"
+    )
+    val arrowAngle by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(250),
+        label = "arrowAngle"
+    )
+
+    Box {
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50))
+                .background(background)
+                .clickable { expanded = !expanded }
+                .padding(start = 22.dp, end = 14.dp, top = 10.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Change",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = content
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Icon(
+                imageVector = Icons.Rounded.KeyboardArrowDown,
+                contentDescription = "Choose report period",
+                tint = content,
+                modifier = Modifier
+                    .size(22.dp)
+                    .rotate(arrowAngle)
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            periodOptions.forEachIndexed { index, option ->
+                val isSelected = index == selectedIndex
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = option.first,
+                            fontSize = 16.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isSelected) SuccessGreen else TextDark
+                        )
+                    },
+                    trailingIcon = {
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Rounded.Check,
+                                contentDescription = "Selected",
+                                tint = SuccessGreen
+                            )
+                        }
+                    },
+                    onClick = {
+                        onSelect(index)
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
 
