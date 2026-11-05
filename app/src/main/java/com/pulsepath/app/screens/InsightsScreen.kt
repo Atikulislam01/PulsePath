@@ -130,7 +130,7 @@ fun InsightsScreen(
                 text = "Key Insights",
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black
+                color = com.pulsepath.app.ui.theme.InkBlack
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -365,7 +365,7 @@ private fun NavCard(
         Icon(
             imageVector = Icons.Rounded.ChevronRight,
             contentDescription = null,
-            tint = Color.Black
+            tint = com.pulsepath.app.ui.theme.InkBlack
         )
     }
 }
@@ -382,7 +382,7 @@ private fun InsightRow(
             text = text,
             fontSize = 17.sp,
             lineHeight = 24.sp,
-            color = Color.Black,
+            color = com.pulsepath.app.ui.theme.InkBlack,
             modifier = Modifier.weight(1f)
         )
     }

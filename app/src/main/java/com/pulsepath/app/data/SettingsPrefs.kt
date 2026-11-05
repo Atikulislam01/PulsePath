@@ -2,7 +2,7 @@ package com.pulsepath.app.data
 
 import android.content.Context
 
-/** Saves the Settings switches and your name on the phone, so they are still there after you close the app. */
+/** Saves the Settings switches, your name and the day/night choice on the phone. */
 object SettingsPrefs {
     private const val FILE = "pulsepath_settings"
     private const val KEY_MONITORING = "monitoring_enabled"
@@ -11,6 +11,7 @@ object SettingsPrefs {
     private const val KEY_USER_NAME = "user_name"
     private const val KEY_NAME_ASKED = "name_asked"
     private const val KEY_ONBOARDING_DONE = "onboarding_done"
+    private const val KEY_DARK_MODE = "dark_mode"
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(FILE, Context.MODE_PRIVATE)
@@ -59,5 +60,13 @@ object SettingsPrefs {
 
     fun setOnboardingDone(context: Context) {
         prefs(context).edit().putBoolean(KEY_ONBOARDING_DONE, true).apply()
+    }
+
+    /** True if the user chose night mode. Day mode is the default. */
+    fun isDarkMode(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_DARK_MODE, false)
+
+    fun setDarkMode(context: Context, value: Boolean) {
+        prefs(context).edit().putBoolean(KEY_DARK_MODE, value).apply()
     }
 }

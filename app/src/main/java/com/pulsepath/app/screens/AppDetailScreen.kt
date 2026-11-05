@@ -106,7 +106,7 @@ fun AppDetailScreen(
                 text = appName,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.Black,
+                color = com.pulsepath.app.ui.theme.InkBlack,
                 maxLines = 2,
                 modifier = Modifier.weight(1f)
             )
@@ -190,7 +190,7 @@ fun AppDetailScreen(
                         text = data.launches.toString(),
                         fontSize = 28.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color.Black
+                        color = com.pulsepath.app.ui.theme.InkBlack
                     )
                     Text(
                         text = "Launches",

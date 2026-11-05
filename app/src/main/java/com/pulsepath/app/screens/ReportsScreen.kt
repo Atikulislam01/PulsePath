@@ -564,7 +564,7 @@ private fun ReportLinkCard(
         Icon(
             imageVector = Icons.Rounded.ChevronRight,
             contentDescription = null,
-            tint = Color.Black
+            tint = com.pulsepath.app.ui.theme.InkBlack
         )
     }
 }

@@ -296,7 +296,7 @@ private fun ChevronIcon() {
     Icon(
         imageVector = Icons.Rounded.ChevronRight,
         contentDescription = null,
-        tint = Color.Black,
+        tint = com.pulsepath.app.ui.theme.InkBlack,
         modifier = Modifier.size(30.dp)
     )
 }

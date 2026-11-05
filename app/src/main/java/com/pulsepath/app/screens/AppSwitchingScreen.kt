@@ -215,7 +215,7 @@ fun AppSwitchingScreen(onBack: () -> Unit) {
                             text = "Top App Pairs",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                            color = com.pulsepath.app.ui.theme.InkBlack
                         )
                         Icon(
                             imageVector = Icons.Rounded.ChevronRight,
@@ -262,7 +262,7 @@ private fun PairRow(pair: AppPairCount) {
             text = "${pair.firstName} + ${pair.secondName}",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            color = com.pulsepath.app.ui.theme.InkBlack,
             maxLines = 2,
             modifier = Modifier.weight(1f)
         )
