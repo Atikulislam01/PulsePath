@@ -24,7 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Chat
-import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.Movie
@@ -33,12 +34,14 @@ import androidx.compose.material.icons.rounded.SportsEsports
 import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -61,8 +64,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.pulsepath.app.components.ArtImage
+import com.pulsepath.app.components.PackageAppIcon
 import com.pulsepath.app.components.PrimaryButton
 import com.pulsepath.app.components.ProfileAvatar
+import com.pulsepath.app.data.AppUsageSummary
 import com.pulsepath.app.data.CATEGORY_EDUCATION
 import com.pulsepath.app.data.CATEGORY_GAMING
 import com.pulsepath.app.data.CATEGORY_MESSAGING
@@ -87,12 +92,22 @@ import com.pulsepath.app.ui.theme.SuccessGreenBg
 import com.pulsepath.app.ui.theme.TextDark
 import com.pulsepath.app.ui.theme.TextMuted
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.math.ceil
 import kotlin.math.max
 
 private val WarningOrange = Color(0xFFF59E0B)
+
+/** The greeting for an hour of the day (0 to 23). */
+private fun greetingForHour(hour: Int): String = when (hour) {
+    in 5..11 -> "Good morning"
+    in 12..16 -> "Good afternoon"
+    in 17..20 -> "Good evening"
+    else -> "Good night"
+}
 
 @Composable
 fun HomeScreen(onGrantPermission: () -> Unit) {
@@ -130,7 +145,7 @@ fun HomeScreen(onGrantPermission: () -> Unit) {
     when {
         !granted -> NoPermissionState(onGrantPermission)
         loaded == null -> LoadingState()
-        else -> HomeContent(loaded)
+        else -> HomeContent(loaded, refreshKey)
     }
 }
 
@@ -178,17 +193,38 @@ private fun NoPermissionState(onGrantPermission: () -> Unit) {
 }
 
 @Composable
-private fun HomeContent(data: HomeData) {
+private fun HomeContent(data: HomeData, refreshKey: Int) {
     val context = LocalContext.current
     var name by remember { mutableStateOf(SettingsPrefs.userName(context)) }
     // Ask for the name once, the first time Home is shown
     var showNameDialog by remember { mutableStateOf(!SettingsPrefs.wasNameAsked(context)) }
 
-    val hour = LocalTime.now().hour
-    val greeting = when {
-        hour < 12 -> "Good morning"
-        hour < 17 -> "Good afternoon"
-        else -> "Good evening"
+    // The current hour, refreshed every minute and whenever the app is opened again
+    var hour by remember { mutableIntStateOf(LocalTime.now().hour) }
+    LaunchedEffect(refreshKey) {
+        hour = LocalTime.now().hour
+        while (true) {
+            delay(60_000L)
+            hour = LocalTime.now().hour
+        }
+    }
+    val greeting = greetingForHour(hour)
+
+    // "By screen time": tap to show the total time of every app used today
+    var showApps by remember { mutableStateOf(false) }
+    val apps by produceState<List<AppUsageSummary>?>(
+        initialValue = null,
+        showApps,
+        data.todayMillis,
+        refreshKey
+    ) {
+        value = if (showApps) {
+            withContext(Dispatchers.IO) {
+                UsageRepository.loadDay(context, LocalDate.now()).apps
+            }
+        } else {
+            null
+        }
     }
 
     if (showNameDialog) {
@@ -260,16 +296,24 @@ private fun HomeContent(data: HomeData) {
                 fontWeight = FontWeight.ExtraBold,
                 color = TextDark
             )
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            // Tap "By screen time" to open or close the list of apps
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { showApps = !showApps }
+                    .padding(start = 8.dp, top = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = "By screen time",
                     fontSize = 14.sp,
-                    color = TextMuted
+                    color = if (showApps) PrimaryPurple else TextMuted,
+                    fontWeight = if (showApps) FontWeight.Bold else FontWeight.Normal
                 )
                 Icon(
-                    imageVector = Icons.Rounded.ChevronRight,
-                    contentDescription = null,
-                    tint = TextDark
+                    imageVector = if (showApps) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                    contentDescription = if (showApps) "Hide apps" else "Show apps",
+                    tint = if (showApps) PrimaryPurple else TextDark
                 )
             }
         }
@@ -291,7 +335,91 @@ private fun HomeContent(data: HomeData) {
             }
         }
 
+        // The apps used today with their total time
+        if (showApps) {
+            Spacer(modifier = Modifier.height(8.dp))
+            AppTimeList(apps = apps)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun AppTimeList(apps: List<AppUsageSummary>?) {
+    val shape = RoundedCornerShape(24.dp)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .border(2.dp, CardBorder, shape)
+            .padding(horizontal = 18.dp, vertical = 16.dp)
+    ) {
+        Text(
+            text = "Time per app today",
+            fontSize = 17.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextDark
+        )
         Spacer(modifier = Modifier.height(8.dp))
+
+        when {
+            apps == null -> Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = PrimaryPurple)
+            }
+
+            apps.isEmpty() -> Text(
+                text = "No apps used yet today.",
+                fontSize = 15.sp,
+                color = TextMuted,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+
+            else -> apps.forEachIndexed { index, app ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    PackageAppIcon(
+                        packageName = app.packageName,
+                        appName = app.appName,
+                        size = 40.dp
+                    )
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = app.appName,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextDark,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = if (app.launches == 1) "1 session" else "${app.launches} sessions",
+                            fontSize = 13.sp,
+                            color = TextMuted
+                        )
+                    }
+                    Text(
+                        text = formatDuration(app.totalMillis),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextDark
+                    )
+                }
+                if (index < apps.lastIndex) {
+                    HorizontalDivider(color = CardBorder)
+                }
+            }
+        }
     }
 }
 
