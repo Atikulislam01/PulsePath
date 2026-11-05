@@ -54,6 +54,7 @@ import com.pulsepath.app.components.PrimaryButton
 import com.pulsepath.app.components.SystemTypingSection
 import com.pulsepath.app.data.TypingResult
 import com.pulsepath.app.data.TypingStore
+import com.pulsepath.app.data.generatedSentences
 import com.pulsepath.app.ui.theme.BackgroundWhite
 import com.pulsepath.app.ui.theme.CardBorder
 import com.pulsepath.app.ui.theme.ChartBlueTop
@@ -74,10 +75,134 @@ private val sentences = listOf(
     "Small daily habits build a calmer and more focused mind over time.",
     "Put your phone down for a moment and notice how the day feels.",
     "Good typing comes from steady rhythm, not from rushing every key.",
-    "A short walk outside can clear your head better than another scroll."
+    "A short walk outside can clear your head better than another scroll.",
+    "Morning light fell softly across the kitchen table and the warm cup of tea.",
+    "She opened the window and let the cool evening air fill the room.",
+    "Learning something new every day makes the world feel a little bigger.",
+    "The train arrived at the station just as the first raindrops began to fall.",
+    "Take a deep breath, count to four, and let it out slowly.",
+    "A good book can take you to a faraway place without leaving your chair.",
+    "The old bridge creaked gently as we walked across the foggy valley.",
+    "Patience is the quiet skill of waiting without losing your calm.",
+    "He wrote his thoughts in a small notebook before going to sleep.",
+    "The market was full of bright fruit, fresh bread, and friendly voices.",
+    "Every expert was once a beginner who refused to give up.",
+    "Clouds drifted slowly over the hills as the sun began to set.",
+    "Drink a glass of water and stretch your arms above your head.",
+    "The little cafe on the corner smells of coffee and warm cinnamon.",
+    "Kindness costs nothing, yet it can change someone's whole day.",
+    "We watched the stars appear one by one above the silent lake.",
+    "A clean desk and a clear plan make hard work feel lighter.",
+    "The children laughed as they chased bubbles across the sunny garden.",
+    "Listen closely and you will hear the city quietly breathing at night.",
+    "Progress is made of tiny steps taken again and again.",
+    "The mountain trail was steep, but the view at the top was worth it.",
+    "Fresh snow covered the street and turned everything perfectly white.",
+    "She practiced the song until every note felt natural and smooth.",
+    "A calm mind sees clearly even when the day is busy.",
+    "The baker woke before dawn to prepare warm loaves for the village.",
+    "Rivers carve canyons slowly, one patient drop of water at a time.",
+    "Turn off a few notifications and enjoy an hour of real quiet.",
+    "The lighthouse stood tall against the dark and stormy sky.",
+    "Friends are the people who make ordinary days feel special.",
+    "He planted a small tree and watched it grow through the seasons.",
+    "A simple smile can open doors that words cannot.",
+    "The library was silent except for the soft turning of pages.",
+    "Autumn leaves in red and gold covered the path through the park.",
+    "Courage does not mean having no fear, but moving forward anyway.",
+    "The ocean waves rolled onto the beach with a steady, soothing sound.",
+    "Plan your day in the morning and your evening will thank you.",
+    "A gentle breeze carried the scent of jasmine across the courtyard.",
+    "She folded the map carefully and set off toward the harbor.",
+    "Good habits are built slowly, but they last for a lifetime.",
+    "The farmer checked the sky and decided the rain would come by noon.",
+    "Music has a way of turning a quiet room into a warm memory.",
+    "We shared a simple meal and talked until the candles burned low.",
+    "Rest is not a waste of time; it is part of doing good work.",
+    "The curious cat climbed the shelf and gently knocked down a cup.",
+    "Spring brings new colors, new sounds, and new hope to every garden.",
+    "Write down one thing you are grateful for before the day ends.",
+    "The pilot smiled as the plane rose above the glowing clouds.",
+    "Hard questions often lead to the most interesting answers.",
+    "A warm blanket, a quiet room, and a good story are all you need.",
+    "The festival lit up the streets with lanterns, music, and laughter.",
+    "Focus on one task at a time and the work becomes much easier.",
+    "The desert at night is cold, silent, and full of bright stars.",
+    "He tied his shoes, grabbed his bag, and walked out into the sunrise.",
+    "Clear thinking starts with a good night of sleep.",
+    "The painter mixed blue and yellow until the perfect green appeared.",
+    "Teamwork turns a heavy job into a shared and happy effort.",
+    "Somewhere in the distance a bell rang slowly across the quiet town.",
+    "Don't compare your first chapter to someone else's tenth.",
+    "The garden was alive with bees, butterflies, and the smell of roses.",
+    "A steady pace will carry you farther than a sudden sprint.",
+    "She found an old photograph tucked inside the pages of a worn book.",
+    "Be gentle with yourself; you are doing better than you think.",
+    "The fisherman pulled his boat onto the sand and mended his nets.",
+    "A tidy mind begins with a few minutes of silence each day.",
+    "Thunder rolled across the valley and the rain poured down all night.",
+    "Cooking together is a happy way to turn simple food into a celebration.",
+    "The student read the question twice before writing a careful answer.",
+    "Look up from the screen and find three things that make you smile.",
+    "The bus was late, so we shared stories under the little shelter.",
+    "Honest work done with care always leaves something to be proud of.",
+    "A forest in the early morning is quiet, green, and full of life.",
+    "He learned that asking for help is a sign of strength, not weakness.",
+    "The pianist closed her eyes and let the music flow through her hands.",
+    "Small kindnesses add up to a warm and friendly community.",
+    "We packed sandwiches, a blanket, and a good book for the hill.",
+    "The compass pointed north and the long journey finally began.",
+    "Time spent outdoors is never wasted on a restless mind.",
+    "The soup simmered slowly while snow fell silently outside the window.",
+    "Every sunrise offers a fresh page and a brand new chance.",
+    "She taught her little brother how to ride a bike without wobbling.",
+    "Strong roots let a tree stand tall through every storm.",
+    "The museum was quiet, and the old paintings seemed to whisper stories.",
+    "Share your knowledge freely and watch it grow in other people.",
+    "A lazy Sunday afternoon is best spent with tea and a long nap.",
+    "The kite danced high above the field on the strong spring wind.",
+    "Think before you speak, and speak with care for the listener.",
+    "At the end of the road we found a tiny house with a blue door.",
+    "Consistency beats intensity when you want to improve at anything.",
+    "The moon was full and silver light filled the sleeping village.",
+    "Taking breaks helps your eyes rest and your ideas come back stronger.",
+    "The chef tasted the sauce, smiled, and added just a pinch of salt.",
+    "Even a long journey begins with a single quiet step forward.",
+    "The students gathered under the old oak tree to watch the sunset.",
+    "Balance your screen time with real moments that you can touch and feel.",
+    "A tiny seed holds the whole story of a giant tree inside it.",
+    "The puppy chased its tail until it fell over and wagged happily.",
+    "Gratitude turns what we have into more than enough.",
+    "On the last day of summer we swam until the sky turned orange.",
+    "Understanding your habits is the first step toward changing them."
 )
 
 private val ErrorRed = Color(0xFFE5484D)
+
+/**
+ * Picks the next sentence from all 10,100 sentences (100 handwritten + 10,000 generated).
+ * Every sentence is used once before any is repeated,
+ * and the same sentence never appears twice in a row.
+ */
+private object SentencePicker {
+    private var queue = ArrayDeque<String>()
+    private var last: String? = null
+
+    fun next(): String {
+        if (queue.isEmpty()) {
+            val shuffled = (sentences + generatedSentences).shuffled().toMutableList()
+            // After a reshuffle, make sure the first one is not the one just shown
+            if (shuffled.size > 1 && shuffled.first() == last) {
+                val swap = shuffled.removeAt(0)
+                shuffled.add(swap)
+            }
+            queue = ArrayDeque(shuffled)
+        }
+        val sentence = queue.removeFirst()
+        last = sentence
+        return sentence
+    }
+}
 
 @Composable
 fun TypingTestScreen(onBack: () -> Unit) {
@@ -86,7 +211,7 @@ fun TypingTestScreen(onBack: () -> Unit) {
 
     // Changing "attempt" starts a fresh test with a new sentence
     var attempt by remember { mutableIntStateOf(0) }
-    val target = remember(attempt) { sentences.random() }
+    val target = remember(attempt) { SentencePicker.next() }
     var typed by remember(attempt) { mutableStateOf("") }
     var startTime by remember(attempt) { mutableLongStateOf(0L) }
     var result by remember(attempt) { mutableStateOf<TypingResult?>(null) }
