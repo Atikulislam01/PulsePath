@@ -1,5 +1,9 @@
 package com.pulsepath.app.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -95,7 +99,16 @@ fun PulsePathNavHost() {
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            // Screens fade in with a small upward slide instead of snapping
+            enterTransition = {
+                fadeIn(tween(320)) + slideInVertically(tween(320)) { it / 16 }
+            },
+            exitTransition = { fadeOut(tween(180)) },
+            popEnterTransition = {
+                fadeIn(tween(320)) + slideInVertically(tween(320)) { it / 16 }
+            },
+            popExitTransition = { fadeOut(tween(180)) }
         ) {
             composable(Routes.WELCOME) {
                 WelcomeScreen(
