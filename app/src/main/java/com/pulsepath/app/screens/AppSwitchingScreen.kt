@@ -77,7 +77,7 @@ fun AppSwitchingScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -88,7 +88,7 @@ fun AppSwitchingScreen(onBack: () -> Unit) {
                 text = "App switching",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -129,7 +129,7 @@ fun AppSwitchingScreen(onBack: () -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(cardShape)
-                        .border(2.dp, CardBorder, cardShape)
+                        .cardBorder(2.dp, CardBorder, cardShape)
                         .padding(20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -203,7 +203,7 @@ fun AppSwitchingScreen(onBack: () -> Unit) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(cardShape)
-                        .border(2.dp, CardBorder, cardShape)
+                        .cardBorder(2.dp, CardBorder, cardShape)
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                 ) {
                     Row(

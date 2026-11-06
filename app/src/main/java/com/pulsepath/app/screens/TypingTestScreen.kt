@@ -253,7 +253,7 @@ fun TypingTestScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .navigationBarsPadding()
             .imePadding()
@@ -266,7 +266,7 @@ fun TypingTestScreen(onBack: () -> Unit) {
                 text = "Typing speed",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -284,7 +284,7 @@ fun TypingTestScreen(onBack: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(cardShape)
-                .border(2.dp, CardBorder, cardShape)
+                .cardBorder(2.dp, CardBorder, cardShape)
                 .padding(24.dp)
         ) {
             Text(
@@ -524,7 +524,7 @@ private fun StatTile(label: String, value: String, modifier: Modifier = Modifier
     Column(
         modifier = modifier
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
+            .cardBorder(2.dp, CardBorder, shape)
             .padding(horizontal = 14.dp, vertical = 14.dp)
     ) {
         Text(text = label, fontSize = 13.sp, color = TextMuted)
@@ -547,7 +547,7 @@ private fun HistoryChart(results: List<TypingResult>) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
+            .cardBorder(2.dp, CardBorder, shape)
             .padding(16.dp)
     ) {
         results.forEach { r ->

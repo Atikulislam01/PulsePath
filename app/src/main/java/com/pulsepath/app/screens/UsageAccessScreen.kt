@@ -97,7 +97,7 @@ fun UsageAccessScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 24.dp),
@@ -113,7 +113,7 @@ fun UsageAccessScreen(
             text = "Allow Usage Access",
             fontSize = 28.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = NavyHeading,
+            color = screenTitleColor,
             textAlign = TextAlign.Center
         )
 
@@ -161,7 +161,7 @@ fun UsageAccessScreen(
             color = PrimaryPurpleDark,
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
-                .clickable(onClick = onNotNow)
+                .pressable(onClick = onNotNow)
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         )
 
@@ -175,7 +175,7 @@ private fun WhatWeCollectCard() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .border(2.dp, CardBorder, RoundedCornerShape(24.dp))
+            .cardBorder(2.dp, CardBorder, RoundedCornerShape(24.dp))
             .padding(horizontal = 24.dp, vertical = 20.dp)
     ) {
         Text(

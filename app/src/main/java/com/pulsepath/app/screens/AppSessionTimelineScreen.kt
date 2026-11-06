@@ -87,7 +87,7 @@ fun AppSessionTimelineScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .padding(horizontal = 20.dp)
     ) {
@@ -97,7 +97,7 @@ fun AppSessionTimelineScreen(
                 text = "App Session Timeline",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -115,7 +115,7 @@ fun AppSessionTimelineScreen(
                 .fillMaxWidth()
                 .clip(dateShape)
                 .background(SoftBlueBg)
-                .border(2.dp, CardBorder, dateShape)
+                .cardBorder(2.dp, CardBorder, dateShape)
                 .padding(horizontal = 8.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -222,7 +222,7 @@ private fun SessionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .pressable(onClick = onClick)
             .padding(vertical = 14.dp, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -145,7 +145,7 @@ fun ReportsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -156,7 +156,7 @@ fun ReportsScreen(
                 text = "Report & Exports",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -167,7 +167,7 @@ fun ReportsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(cardShape)
-                .border(2.dp, CardBorder, cardShape)
+                .cardBorder(2.dp, CardBorder, cardShape)
                 .padding(horizontal = 20.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -376,7 +376,7 @@ private fun PeriodDropdown(
             modifier = Modifier
                 .clip(RoundedCornerShape(50))
                 .background(background)
-                .clickable { expanded = !expanded }
+                .pressable { expanded = !expanded }
                 .padding(start = 22.dp, end = 14.dp, top = 10.dp, bottom = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -437,7 +437,7 @@ private fun StatTile(label: String, value: String, modifier: Modifier = Modifier
     Column(
         modifier = modifier
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
+            .cardBorder(2.dp, CardBorder, shape)
             .padding(horizontal = 18.dp, vertical = 16.dp)
     ) {
         Text(text = label, fontSize = 15.sp, color = TextMuted)
@@ -462,7 +462,7 @@ private fun ExportRow(option: ExportOption, selected: Boolean, onClick: () -> Un
             .fillMaxWidth()
             .clip(shape)
             .border(if (selected) 3.dp else 2.dp, borderColor, shape)
-            .clickable(onClick = onClick)
+            .pressable(onClick = onClick)
             .padding(horizontal = 18.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -529,8 +529,8 @@ private fun ReportLinkCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
-            .clickable(onClick = onClick)
+            .cardBorder(2.dp, CardBorder, shape)
+            .pressable(onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

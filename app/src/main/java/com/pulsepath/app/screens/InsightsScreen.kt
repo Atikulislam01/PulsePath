@@ -93,7 +93,7 @@ fun InsightsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -104,7 +104,7 @@ fun InsightsScreen(
                 text = "Behaviour Insights",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -123,7 +123,7 @@ fun InsightsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(cardShape)
-                .border(2.dp, CardBorder, cardShape)
+                .cardBorder(2.dp, CardBorder, cardShape)
                 .padding(24.dp)
         ) {
             Text(
@@ -336,8 +336,8 @@ private fun NavCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
-            .clickable(onClick = onClick)
+            .cardBorder(2.dp, CardBorder, shape)
+            .pressable(onClick = onClick)
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween

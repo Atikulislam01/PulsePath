@@ -18,7 +18,7 @@ fun PlaceholderScreen(title: String) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding(),
         contentAlignment = Alignment.Center
     ) {
@@ -26,7 +26,7 @@ fun PlaceholderScreen(title: String) {
             text = "$title\n(coming soon)",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
-            color = NavyHeading
+            color = screenTitleColor
         )
     }
 }

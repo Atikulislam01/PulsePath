@@ -56,7 +56,7 @@ fun NoDataScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 24.dp),
@@ -72,7 +72,7 @@ fun NoDataScreen(
             text = "No Data Yet",
             fontSize = 28.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = NavyHeading
+            color = screenTitleColor
         )
 
         Spacer(modifier = Modifier.height(12.dp))

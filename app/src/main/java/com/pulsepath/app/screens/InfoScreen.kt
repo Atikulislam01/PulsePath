@@ -126,7 +126,7 @@ private fun InfoScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -137,7 +137,7 @@ private fun InfoScreen(
                 text = title,
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -155,7 +155,7 @@ private fun InfoScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(shape)
-                    .border(2.dp, CardBorder, shape)
+                    .cardBorder(2.dp, CardBorder, shape)
                     .padding(20.dp)
             ) {
                 Text(

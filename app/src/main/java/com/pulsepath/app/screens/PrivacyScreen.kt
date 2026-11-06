@@ -110,7 +110,7 @@ fun PrivacyScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -121,7 +121,7 @@ fun PrivacyScreen(
                 text = "Privacy & Consent",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -212,13 +212,13 @@ private fun PrivacyRow(
     trailing: @Composable () -> Unit
 ) {
     val shape = RoundedCornerShape(28.dp)
-    val clickModifier = if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+    val clickModifier = if (onClick != null) Modifier.pressable(onClick = onClick) else Modifier
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
+            .cardBorder(2.dp, CardBorder, shape)
             .then(clickModifier)
             .padding(horizontal = 22.dp, vertical = 22.dp),
         verticalAlignment = Alignment.CenterVertically

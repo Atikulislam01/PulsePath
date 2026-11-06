@@ -140,7 +140,7 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -151,7 +151,7 @@ fun SettingsScreen(
                 text = "Settings",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -325,7 +325,7 @@ private fun ThemeOption(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
             .background(if (selected) PrimaryPurple else SoftLavender)
-            .clickable(onClick = onClick)
+            .pressable(onClick = onClick)
             .padding(vertical = 14.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -356,7 +356,7 @@ private fun SettingsCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
+            .cardBorder(2.dp, CardBorder, shape)
     ) {
         Text(
             text = title,
@@ -377,7 +377,7 @@ private fun SettingsRow(
     trailing: @Composable () -> Unit
 ) {
     val clickModifier = if (onClick != null) {
-        Modifier.clickable(onClick = onClick)
+        Modifier.pressable(onClick = onClick)
     } else {
         Modifier
     }

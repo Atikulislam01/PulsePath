@@ -50,7 +50,7 @@ fun OnboardingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 24.dp),
@@ -66,7 +66,7 @@ fun OnboardingScreen(
             text = "Understand\nYour Digital Habits",
             fontSize = 28.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = NavyHeading,
+            color = screenTitleColor,
             textAlign = TextAlign.Center,
             lineHeight = 36.sp
         )

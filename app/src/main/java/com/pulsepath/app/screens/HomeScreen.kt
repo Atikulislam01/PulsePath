@@ -159,7 +159,7 @@ private fun LoadingState() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite),
+            .screenBackground(),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(color = PrimaryPurple)
@@ -171,7 +171,7 @@ private fun NoPermissionState(onGrantPermission: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -181,7 +181,7 @@ private fun NoPermissionState(onGrantPermission: () -> Unit) {
             text = "No Data Yet",
             fontSize = 28.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = NavyHeading
+            color = screenTitleColor
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
@@ -248,7 +248,7 @@ private fun HomeContent(data: HomeData, refreshKey: Int) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -265,12 +265,12 @@ private fun HomeContent(data: HomeData, refreshKey: Int) {
                 text = if (name.isBlank()) "$greeting!" else "$greeting,\n$name!",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading,
+                color = screenTitleColor,
                 lineHeight = 34.sp,
                 modifier = Modifier
                     .weight(1f)
                     .clip(RoundedCornerShape(12.dp))
-                    .clickable { showNameDialog = true }   // tap the greeting to change your name
+                    .pressable { showNameDialog = true }   // tap the greeting to change your name
             )
             Spacer(modifier = Modifier.width(12.dp))
             ProfileAvatar(size = 88.dp)
@@ -347,7 +347,7 @@ private fun CategoryAppList(apps: List<AppUsageSummary>?) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
+            .cardBorder(2.dp, CardBorder, shape)
             .padding(horizontal = 18.dp, vertical = 8.dp)
     ) {
         when {
@@ -536,7 +536,7 @@ private fun WeeklyBarChartCard(values: List<Long>, labels: List<String>) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
-            .border(2.dp, CardBorder, RoundedCornerShape(28.dp))
+            .cardBorder(2.dp, CardBorder, RoundedCornerShape(28.dp))
             .padding(horizontal = 16.dp, vertical = 20.dp)
     ) {
         Row(

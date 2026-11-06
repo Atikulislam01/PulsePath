@@ -47,7 +47,7 @@ fun WelcomeScreen(onGetStarted: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .navigationBarsPadding()
             .padding(horizontal = 24.dp),

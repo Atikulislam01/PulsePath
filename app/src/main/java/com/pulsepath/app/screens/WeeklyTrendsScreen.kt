@@ -91,7 +91,7 @@ fun WeeklyTrendsScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -102,7 +102,7 @@ fun WeeklyTrendsScreen(onBack: () -> Unit) {
                 text = "Weekly Trends",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -127,7 +127,7 @@ fun WeeklyTrendsScreen(onBack: () -> Unit) {
                         .weight(1f)
                         .clip(RoundedCornerShape(50))
                         .background(if (selected) AccentIndigo else SoftLavender)
-                        .clickable { tab = index }
+                        .pressable { tab = index }
                         .padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -293,7 +293,7 @@ private fun TrendChartCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
+            .cardBorder(2.dp, CardBorder, shape)
             .padding(horizontal = 16.dp, vertical = 20.dp)
     ) {
         // Legend
@@ -446,7 +446,7 @@ private fun TrendStatCard(
     Column(
         modifier = modifier
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
+            .cardBorder(2.dp, CardBorder, shape)
             .padding(horizontal = 18.dp, vertical = 18.dp)
     ) {
         Text(

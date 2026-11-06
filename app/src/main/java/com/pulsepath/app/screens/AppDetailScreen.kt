@@ -82,7 +82,7 @@ fun AppDetailScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -96,7 +96,7 @@ fun AppDetailScreen(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(24.dp))
-                    .border(2.dp, CardBorder, RoundedCornerShape(24.dp))
+                    .cardBorder(2.dp, CardBorder, RoundedCornerShape(24.dp))
                     .padding(10.dp)
             ) {
                 PackageAppIcon(packageName = packageName, appName = appName, size = 72.dp)
@@ -139,7 +139,7 @@ fun AppDetailScreen(
                         .weight(1f)
                         .clip(RoundedCornerShape(20.dp))
                         .background(if (selected) Color.White else Color.Transparent)
-                        .clickable { selectedTab = index }
+                        .pressable { selectedTab = index }
                         .padding(vertical = 14.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -285,7 +285,7 @@ private fun UsageChartCard(bars: List<ChartBar>, labelIndices: Set<Int>) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
+            .cardBorder(2.dp, CardBorder, shape)
             .padding(horizontal = 12.dp, vertical = 20.dp)
     ) {
         Box(

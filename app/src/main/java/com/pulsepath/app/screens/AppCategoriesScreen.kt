@@ -143,7 +143,7 @@ fun AppCategoriesScreen(onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundWhite)
+            .screenBackground()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
@@ -154,7 +154,7 @@ fun AppCategoriesScreen(onBack: () -> Unit) {
                 text = "App categories",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = NavyHeading
+                color = screenTitleColor
             )
         }
 
@@ -220,8 +220,8 @@ private fun CategoryTile(
         modifier = modifier
             .aspectRatio(1.1f)
             .clip(shape)
-            .border(2.dp, CardBorder, shape)
-            .clickable(onClick = onClick)
+            .cardBorder(2.dp, CardBorder, shape)
+            .pressable(onClick = onClick)
             .padding(20.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
