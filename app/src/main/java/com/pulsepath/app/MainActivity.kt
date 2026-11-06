@@ -1,9 +1,12 @@
 package com.pulsepath.app
 
+import android.graphics.Color as AndroidColor
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.lifecycleScope
 import com.pulsepath.app.data.HistoryStore
 import com.pulsepath.app.data.ReminderScheduler
@@ -11,14 +14,31 @@ import com.pulsepath.app.data.SettingsPrefs
 import com.pulsepath.app.data.hasUsageAccess
 import com.pulsepath.app.navigation.PulsePathNavHost
 import com.pulsepath.app.ui.theme.PulsePathTheme
+import com.pulsepath.app.ui.theme.ThemeState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        // Start in the mode the user chose last time
+        ThemeState.isDark = SettingsPrefs.isDarkMode(this)
+
         setContent {
+            val dark = ThemeState.isDark
+
+            // Light icons on a dark background, dark icons on a light one
+            DisposableEffect(dark) {
+                val style = if (dark) {
+                    SystemBarStyle.dark(AndroidColor.TRANSPARENT)
+                } else {
+                    SystemBarStyle.light(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT)
+                }
+                enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+                onDispose { }
+            }
+
             PulsePathTheme {
                 PulsePathNavHost()
             }

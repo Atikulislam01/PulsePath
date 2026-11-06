@@ -23,6 +23,9 @@ object Routes {
     const val TRANSPARENCY = "transparency"
     const val HELP = "help"
 
+    // Typing test: no bottom bar here, so the keyboard has room
+    const val TYPING = "typing"
+
     val bottomTabs = listOf(HOME, APPS, INSIGHTS, REPORTS, SETTINGS)
 
     // Screens that are not tabs but still show the bottom bar

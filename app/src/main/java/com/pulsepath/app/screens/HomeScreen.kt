@@ -24,20 +24,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Chat
-import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.ExpandLess
+import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Forum
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.Movie
+import androidx.compose.material.icons.rounded.School
 import androidx.compose.material.icons.rounded.SportsEsports
 import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -59,14 +63,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.pulsepath.app.components.ArtImage
+import com.pulsepath.app.components.PackageAppIcon
 import com.pulsepath.app.components.PrimaryButton
 import com.pulsepath.app.components.ProfileAvatar
+import com.pulsepath.app.data.AppUsageSummary
+import com.pulsepath.app.data.CATEGORY_EDUCATION
 import com.pulsepath.app.data.CATEGORY_GAMING
 import com.pulsepath.app.data.CATEGORY_MESSAGING
 import com.pulsepath.app.data.CATEGORY_PRODUCTIVITY
 import com.pulsepath.app.data.CATEGORY_SOCIAL
 import com.pulsepath.app.data.CATEGORY_VIDEO
-import com.pulsepath.app.data.CategoryTotal
 import com.pulsepath.app.data.HomeData
 import com.pulsepath.app.data.SettingsPrefs
 import com.pulsepath.app.data.UsageRepository
@@ -84,12 +91,22 @@ import com.pulsepath.app.ui.theme.SuccessGreenBg
 import com.pulsepath.app.ui.theme.TextDark
 import com.pulsepath.app.ui.theme.TextMuted
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.math.ceil
 import kotlin.math.max
 
 private val WarningOrange = Color(0xFFF59E0B)
+
+/** The greeting for an hour of the day (0 to 23). */
+private fun greetingForHour(hour: Int): String = when (hour) {
+    in 5..11 -> "Good morning"
+    in 12..16 -> "Good afternoon"
+    in 17..20 -> "Good evening"
+    else -> "Good night"
+}
 
 @Composable
 fun HomeScreen(onGrantPermission: () -> Unit) {
@@ -127,7 +144,7 @@ fun HomeScreen(onGrantPermission: () -> Unit) {
     when {
         !granted -> NoPermissionState(onGrantPermission)
         loaded == null -> LoadingState()
-        else -> HomeContent(loaded)
+        else -> HomeContent(loaded, refreshKey)
     }
 }
 
@@ -175,18 +192,36 @@ private fun NoPermissionState(onGrantPermission: () -> Unit) {
 }
 
 @Composable
-private fun HomeContent(data: HomeData) {
+private fun HomeContent(data: HomeData, refreshKey: Int) {
     val context = LocalContext.current
     var name by remember { mutableStateOf(SettingsPrefs.userName(context)) }
     // Ask for the name once, the first time Home is shown
     var showNameDialog by remember { mutableStateOf(!SettingsPrefs.wasNameAsked(context)) }
 
-    val hour = LocalTime.now().hour
-    val greeting = when {
-        hour < 12 -> "Good morning"
-        hour < 17 -> "Good afternoon"
-        else -> "Good evening"
+    // The current hour, refreshed every minute and whenever the app is opened again
+    var hour by remember { mutableIntStateOf(LocalTime.now().hour) }
+    LaunchedEffect(refreshKey) {
+        hour = LocalTime.now().hour
+        while (true) {
+            delay(60_000L)
+            hour = LocalTime.now().hour
+        }
     }
+    val greeting = greetingForHour(hour)
+
+    // Today's apps, used when a category is opened
+    val todayApps by produceState<List<AppUsageSummary>?>(
+        initialValue = null,
+        data.todayMillis,
+        refreshKey
+    ) {
+        value = withContext(Dispatchers.IO) {
+            UsageRepository.loadDay(context, LocalDate.now()).apps
+        }
+    }
+
+    // Which category is open (only one at a time)
+    var openCategory by remember { mutableStateOf<String?>(null) }
 
     if (showNameDialog) {
         NameDialog(
@@ -245,31 +280,12 @@ private fun HomeContent(data: HomeData) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Top category header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Top Category",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = TextDark
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "By screen time",
-                    fontSize = 14.sp,
-                    color = TextMuted
-                )
-                Icon(
-                    imageVector = Icons.Rounded.ChevronRight,
-                    contentDescription = null,
-                    tint = TextDark
-                )
-            }
-        }
+        Text(
+            text = "Top Category",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = TextDark
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -283,12 +299,100 @@ private fun HomeContent(data: HomeData) {
         } else {
             val topMillis = data.categories.first().millis.toFloat()
             data.categories.forEach { category ->
-                CategoryRow(category = category, fraction = category.millis / topMillis)
+                val isOpen = openCategory == category.name
+
+                CategoryRow(
+                    name = category.name,
+                    millis = category.millis,
+                    fraction = category.millis / topMillis,
+                    isOpen = isOpen,
+                    onClick = { openCategory = if (isOpen) null else category.name }
+                )
+
+                // The apps inside this category
+                if (isOpen) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CategoryAppList(
+                        apps = todayApps?.filter { it.category == category.name }
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
+    }
+}
+
+/** The apps of one category with their sessions and total time. null means still loading. */
+@Composable
+private fun CategoryAppList(apps: List<AppUsageSummary>?) {
+    val shape = RoundedCornerShape(24.dp)
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .border(2.dp, CardBorder, shape)
+            .padding(horizontal = 18.dp, vertical = 8.dp)
+    ) {
+        when {
+            apps == null -> Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(70.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = PrimaryPurple)
+            }
+
+            apps.isEmpty() -> Text(
+                text = "No apps used in this category today.",
+                fontSize = 15.sp,
+                color = TextMuted,
+                modifier = Modifier.padding(vertical = 12.dp)
+            )
+
+            else -> apps.forEachIndexed { index, app ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    PackageAppIcon(
+                        packageName = app.packageName,
+                        appName = app.appName,
+                        size = 40.dp
+                    )
+                    Spacer(modifier = Modifier.width(14.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = app.appName,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TextDark,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = if (app.launches == 1) "1 session" else "${app.launches} sessions",
+                            fontSize = 13.sp,
+                            color = TextMuted
+                        )
+                    }
+                    Text(
+                        text = formatDuration(app.totalMillis),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextDark
+                    )
+                }
+                if (index < apps.lastIndex) {
+                    HorizontalDivider(color = CardBorder)
+                }
+            }
+        }
     }
 }
 
@@ -490,30 +594,58 @@ private fun categoryStyle(name: String): Pair<Color, ImageVector> = when (name) 
     CATEGORY_VIDEO -> Color(0xFF3F7BE8) to Icons.Rounded.Movie
     CATEGORY_GAMING -> Color(0xFF0E9F8E) to Icons.Rounded.SportsEsports
     CATEGORY_PRODUCTIVITY -> Color(0xFF12B76A) to Icons.Rounded.TrendingUp
+    CATEGORY_EDUCATION -> Color(0xFF3F7BE8) to Icons.Rounded.School
     else -> Color(0xFF6B7A99) to Icons.Rounded.GridView
 }
 
+/** The name of the Figma PNG in res/drawable for each category. */
+private fun categoryImageName(name: String): String = when (name) {
+    CATEGORY_SOCIAL -> "category_social"
+    CATEGORY_MESSAGING -> "category_messaging"
+    CATEGORY_VIDEO -> "category_video"
+    CATEGORY_GAMING -> "category_games"
+    CATEGORY_PRODUCTIVITY -> "category_productivity"
+    CATEGORY_EDUCATION -> "category_education"
+    else -> "category_other"
+}
+
 @Composable
-private fun CategoryRow(category: CategoryTotal, fraction: Float) {
-    val (color, icon) = categoryStyle(category.name)
+private fun CategoryRow(
+    name: String,
+    millis: Long,
+    fraction: Float,
+    isOpen: Boolean,
+    onClick: () -> Unit
+) {
+    val (color, icon) = categoryStyle(name)
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape)
-                .background(color.copy(alpha = 0.12f)),
-            contentAlignment = Alignment.Center
+        // Your Figma icon, or the old round icon if the PNG is missing
+        ArtImage(
+            name = categoryImageName(name),
+            modifier = Modifier.size(48.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(26.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(14.dp))
@@ -521,20 +653,28 @@ private fun CategoryRow(category: CategoryTotal, fraction: Float) {
         Column(modifier = Modifier.weight(1f)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = category.name,
+                    text = name,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = TextDark
                 )
-                Text(
-                    text = formatDuration(category.millis),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextDark
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = formatDuration(millis),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextDark
+                    )
+                    Icon(
+                        imageVector = if (isOpen) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                        contentDescription = if (isOpen) "Hide apps" else "Show apps",
+                        tint = TextMuted
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))

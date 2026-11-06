@@ -175,14 +175,14 @@ private fun WhatWeCollectCard() {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(24.dp))
-            .border(BorderStrokeCard, RoundedCornerShape(24.dp))
+            .border(2.dp, CardBorder, RoundedCornerShape(24.dp))
             .padding(horizontal = 24.dp, vertical = 20.dp)
     ) {
         Text(
             text = "What we collect:",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = com.pulsepath.app.ui.theme.InkBlack
         )
 
         Spacer(modifier = Modifier.height(12.dp))

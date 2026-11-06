@@ -44,7 +44,7 @@ private fun iconStyleFor(appName: String): IconStyle = when (appName) {
     "TikTok" -> IconStyle(SolidColor(Color(0xFF111111)), Icons.Rounded.MusicNote, null, Color.White)
     "Facebook" -> IconStyle(SolidColor(Color(0xFF1877F2)), null, "f", Color.White)
     "Chrome" -> IconStyle(SolidColor(Color(0xFF4285F4)), Icons.Rounded.Public, null, Color.White)
-    "Snapchat" -> IconStyle(SolidColor(Color(0xFFFFFC00)), null, "S", Color.Black)
+    "Snapchat" -> IconStyle(SolidColor(Color(0xFFFFFC00)), null, "S", com.pulsepath.app.ui.theme.InkBlack)
     else -> IconStyle(SolidColor(PrimaryPurple), null, appName.take(1), Color.White)
 }
 

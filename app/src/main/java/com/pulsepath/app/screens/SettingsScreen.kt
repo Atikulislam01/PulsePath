@@ -18,12 +18,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
@@ -40,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,11 +63,14 @@ import com.pulsepath.app.data.showReminder
 import com.pulsepath.app.ui.theme.AccentIndigo
 import com.pulsepath.app.ui.theme.BackgroundWhite
 import com.pulsepath.app.ui.theme.CardBorder
+import com.pulsepath.app.ui.theme.InkBlack
 import com.pulsepath.app.ui.theme.NavyHeading
+import com.pulsepath.app.ui.theme.PrimaryPurple
 import com.pulsepath.app.ui.theme.SoftLavender
 import com.pulsepath.app.ui.theme.SuccessGreenStrong
 import com.pulsepath.app.ui.theme.TextDark
 import com.pulsepath.app.ui.theme.TextMuted
+import com.pulsepath.app.ui.theme.ThemeState
 
 @Composable
 fun SettingsScreen(
@@ -155,6 +163,38 @@ fun SettingsScreen(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        SettingsCard(title = "Appearance") {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ThemeOption(
+                    label = "Day",
+                    icon = Icons.Rounded.LightMode,
+                    selected = !ThemeState.isDark,
+                    onClick = {
+                        ThemeState.isDark = false
+                        SettingsPrefs.setDarkMode(context, false)
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+                ThemeOption(
+                    label = "Night",
+                    icon = Icons.Rounded.DarkMode,
+                    selected = ThemeState.isDark,
+                    onClick = {
+                        ThemeState.isDark = true
+                        SettingsPrefs.setDarkMode(context, true)
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         SettingsCard(title = "Monitoring") {
             SettingsRow(label = "Enable Monitoring") {
@@ -274,6 +314,39 @@ fun SettingsScreen(
 }
 
 @Composable
+private fun ThemeOption(
+    label: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(if (selected) PrimaryPurple else SoftLavender)
+            .clickable(onClick = onClick)
+            .padding(vertical = 14.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = if (selected) Color.White else TextMuted,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (selected) Color.White else TextDark
+        )
+    }
+}
+
+@Composable
 private fun SettingsCard(
     title: String,
     content: @Composable ColumnScope.() -> Unit
@@ -289,7 +362,7 @@ private fun SettingsCard(
             text = title,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black,
+            color = InkBlack,
             modifier = Modifier.padding(start = 24.dp, top = 20.dp, bottom = 12.dp)
         )
         HorizontalDivider(color = CardBorder)
@@ -320,7 +393,7 @@ private fun SettingsRow(
         Text(
             text = label,
             fontSize = 17.sp,
-            color = Color.Black
+            color = InkBlack
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -352,6 +425,6 @@ private fun Chevron() {
     Icon(
         imageVector = Icons.Rounded.ChevronRight,
         contentDescription = null,
-        tint = Color.Black
+        tint = InkBlack
     )
 }

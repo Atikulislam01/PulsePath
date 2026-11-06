@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import com.pulsepath.app.components.ArtImage
 import com.pulsepath.app.components.BackArrow
 import com.pulsepath.app.components.DeleteDataDialog
 import com.pulsepath.app.data.HistoryStore
@@ -134,6 +135,7 @@ fun PrivacyScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         PrivacyRow(
+            imageName = "privacy_usage",
             icon = Icons.Rounded.Shield,
             color = Color(0xFF12A57F),
             title = "Usage Access",
@@ -146,6 +148,7 @@ fun PrivacyScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         PrivacyRow(
+            imageName = "privacy_notification",
             icon = Icons.Rounded.Notifications,
             color = Color(0xFF1E90FF),
             title = "Notification Access",
@@ -158,6 +161,7 @@ fun PrivacyScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         PrivacyRow(
+            imageName = "privacy_transparency",
             icon = Icons.Rounded.Visibility,
             color = Color(0xFF0B6E99),
             title = "Data Transparency",
@@ -170,6 +174,7 @@ fun PrivacyScreen(
         Spacer(modifier = Modifier.height(28.dp))
 
         PrivacyRow(
+            imageName = "privacy_delete",
             icon = Icons.Rounded.Delete,
             color = Color(0xFF1E90FF),
             title = "Delete My Data",
@@ -182,6 +187,7 @@ fun PrivacyScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         PrivacyRow(
+            imageName = "privacy_export",
             icon = Icons.Rounded.Description,
             color = Color(0xFF1E6FE0),
             title = "Export My Data",
@@ -197,6 +203,7 @@ fun PrivacyScreen(
 
 @Composable
 private fun PrivacyRow(
+    imageName: String,
     icon: ImageVector,
     color: Color,
     title: String,
@@ -216,19 +223,22 @@ private fun PrivacyRow(
             .padding(horizontal = 22.dp, vertical = 22.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(color.copy(alpha = 0.14f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(28.dp)
-            )
+        // Your Figma PNG, or the old round icon if the PNG is missing
+        ArtImage(name = imageName, modifier = Modifier.size(52.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(18.dp))
@@ -286,7 +296,7 @@ private fun ChevronIcon() {
     Icon(
         imageVector = Icons.Rounded.ChevronRight,
         contentDescription = null,
-        tint = Color.Black,
+        tint = com.pulsepath.app.ui.theme.InkBlack,
         modifier = Modifier.size(30.dp)
     )
 }

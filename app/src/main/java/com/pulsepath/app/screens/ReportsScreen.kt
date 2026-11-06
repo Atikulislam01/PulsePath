@@ -1,6 +1,13 @@
 package com.pulsepath.app.screens
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,13 +28,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Code
 import androidx.compose.material.icons.rounded.Inbox
+import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.rounded.ShowChart
 import androidx.compose.material.icons.rounded.TableChart
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,13 +51,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pulsepath.app.components.ArtImage
 import com.pulsepath.app.components.BackArrow
 import com.pulsepath.app.components.PrimaryButton
 import com.pulsepath.app.data.ExportFormat
@@ -70,24 +84,25 @@ import kotlinx.coroutines.withContext
 
 // Label and number of days for each report period
 private val periodOptions = listOf(
+    "Today" to 1,
     "Last 7 days" to 7,
-    "Last 30 days" to 30,
-    "Today" to 1
+    "Last 30 days" to 30
 )
 
 private data class ExportOption(
     val title: String,
     val subtitle: String,
     val badge: String,
+    val imageName: String,
     val icon: ImageVector,
     val color: Color,
     val enabled: Boolean
 )
 
 private val exportOptions = listOf(
-    ExportOption("CSV", "Spreadsheet-ready table", "Recommended", Icons.Rounded.TableChart, Color(0xFF4F46E5), true),
-    ExportOption("JSON", "Structured metadata", "Developer-friendly", Icons.Rounded.Code, Color(0xFF1E90FF), true),
-    ExportOption("Summary PDF", "Readable report", "Coming soon", Icons.Rounded.PictureAsPdf, Color(0xFF6B7A99), false)
+    ExportOption("CSV", "Spreadsheet-ready table", "Recommended", "export_csv", Icons.Rounded.TableChart, Color(0xFF4F46E5), true),
+    ExportOption("JSON", "Structured metadata", "Developer-friendly", "export_json", Icons.Rounded.Code, Color(0xFF1E90FF), true),
+    ExportOption("Summary PDF", "Readable report", "Coming soon", "export_pdf", Icons.Rounded.PictureAsPdf, Color(0xFF6B7A99), false)
 )
 
 @Composable
@@ -101,7 +116,7 @@ fun ReportsScreen(
     val scope = rememberCoroutineScope()
     val granted = hasUsageAccess(context)
 
-    var periodIndex by remember { mutableIntStateOf(0) }
+    var periodIndex by remember { mutableIntStateOf(1) }   // starts on "Last 7 days"
     var selectedExport by remember { mutableIntStateOf(0) }
     var exporting by remember { mutableStateOf(false) }
 
@@ -166,33 +181,35 @@ fun ReportsScreen(
                     letterSpacing = 0.5.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = periodLabel,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextDark
-                )
+                // The period name fades when you pick another one
+                AnimatedContent(
+                    targetState = periodLabel,
+                    transitionSpec = { fadeIn(tween(250)) togetherWith fadeOut(tween(150)) },
+                    label = "periodLabel"
+                ) { label ->
+                    Text(
+                        text = label,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextDark
+                    )
+                }
             }
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(SuccessGreenBg)
-                    .clickable { periodIndex = (periodIndex + 1) % periodOptions.size }
-                    .padding(horizontal = 24.dp, vertical = 12.dp)
-            ) {
-                Text(
-                    text = "Change ▾",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = SuccessGreen
-                )
-            }
+
+            PeriodDropdown(
+                selectedIndex = periodIndex,
+                onSelect = { periodIndex = it }
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = if (days == 7) "Weekly summary" else "Summary",
+            text = when (days) {
+                1 -> "Today's summary"
+                7 -> "Weekly summary"
+                else -> "Summary"
+            },
             fontSize = 22.sp,
             fontWeight = FontWeight.ExtraBold,
             color = TextDark
@@ -299,6 +316,7 @@ fun ReportsScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         ReportLinkCard(
+            imageName = "link_weekly",
             icon = Icons.Rounded.ShowChart,
             color = Color(0xFF6C5CE7),
             title = "Weekly Trends",
@@ -307,6 +325,7 @@ fun ReportsScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         ReportLinkCard(
+            imageName = "link_privacy",
             icon = Icons.Rounded.Lock,
             color = Color(0xFF12A57F),
             title = "Privacy & Consent",
@@ -315,6 +334,7 @@ fun ReportsScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         ReportLinkCard(
+            imageName = "link_empty",
             icon = Icons.Rounded.Inbox,
             color = Color(0xFF3F7BE8),
             title = "Empty state preview",
@@ -323,6 +343,91 @@ fun ReportsScreen(
         )
 
         Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+/** The animated "Change" button with a drop-down list of periods. */
+@Composable
+private fun PeriodDropdown(
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    // The pill fills with green while the menu is open, and the arrow turns upside down
+    val background by animateColorAsState(
+        targetValue = if (expanded) SuccessGreen else SuccessGreenBg,
+        animationSpec = tween(200),
+        label = "pillBackground"
+    )
+    val content by animateColorAsState(
+        targetValue = if (expanded) Color.White else SuccessGreen,
+        animationSpec = tween(200),
+        label = "pillContent"
+    )
+    val arrowAngle by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = tween(250),
+        label = "arrowAngle"
+    )
+
+    Box {
+        Row(
+            modifier = Modifier
+                .clip(RoundedCornerShape(50))
+                .background(background)
+                .clickable { expanded = !expanded }
+                .padding(start = 22.dp, end = 14.dp, top = 10.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Change",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = content
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Icon(
+                imageVector = Icons.Rounded.KeyboardArrowDown,
+                contentDescription = "Choose report period",
+                tint = content,
+                modifier = Modifier
+                    .size(22.dp)
+                    .rotate(arrowAngle)
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            periodOptions.forEachIndexed { index, option ->
+                val isSelected = index == selectedIndex
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = option.first,
+                            fontSize = 16.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isSelected) SuccessGreen else TextDark
+                        )
+                    },
+                    trailingIcon = {
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Rounded.Check,
+                                contentDescription = "Selected",
+                                tint = SuccessGreen
+                            )
+                        }
+                    },
+                    onClick = {
+                        onSelect(index)
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -361,19 +466,27 @@ private fun ExportRow(option: ExportOption, selected: Boolean, onClick: () -> Un
             .padding(horizontal = 18.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+        // Your Figma PNG, or the old icon if the PNG is missing
+        ArtImage(
+            name = option.imageName,
             modifier = Modifier
                 .size(44.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(option.color.copy(alpha = 0.14f * alpha)),
-            contentAlignment = Alignment.Center
+                .alpha(alpha)
         ) {
-            Icon(
-                imageVector = option.icon,
-                contentDescription = null,
-                tint = option.color.copy(alpha = alpha),
-                modifier = Modifier.size(26.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(option.color.copy(alpha = 0.14f * alpha)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = option.icon,
+                    contentDescription = null,
+                    tint = option.color.copy(alpha = alpha),
+                    modifier = Modifier.size(26.dp)
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -403,6 +516,7 @@ private fun ExportRow(option: ExportOption, selected: Boolean, onClick: () -> Un
 
 @Composable
 private fun ReportLinkCard(
+    imageName: String,
     icon: ImageVector,
     color: Color,
     title: String,
@@ -420,19 +534,22 @@ private fun ReportLinkCard(
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .clip(CircleShape)
-                .background(color.copy(alpha = 0.14f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = color,
-                modifier = Modifier.size(24.dp)
-            )
+        // Your Figma PNG, or the old round icon if the PNG is missing
+        ArtImage(name = imageName, modifier = Modifier.size(44.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(color.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
@@ -447,7 +564,7 @@ private fun ReportLinkCard(
         Icon(
             imageVector = Icons.Rounded.ChevronRight,
             contentDescription = null,
-            tint = Color.Black
+            tint = com.pulsepath.app.ui.theme.InkBlack
         )
     }
 }

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="typing_service_description">PulsePath counts how many characters you type and how fast, in any app, so it can show your typing speed. It never reads or stores what you type, ignores password fields, and keeps everything on this phone.</string>
+</resources>

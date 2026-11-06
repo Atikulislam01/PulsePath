@@ -38,8 +38,9 @@ private val transparencySections = listOf(
     ),
     InfoSection(
         "What PulsePath does not read",
-        "It does not read your messages, passwords, photos, contacts, location or anything you type or see inside other apps. " +
-                "It only knows that an app was open, not what you did in it."
+        "        \"It does not read your messages, passwords, photos, contacts or location. \" +\n" +
+                "            \"It only knows that an app was open, not what you did in it. \" +\n" +
+                "            \"If you switch on typing tracking, it counts how many characters you type and how fast, but never the characters themselves.\""
     ),
     InfoSection(
         "Where your data is stored",

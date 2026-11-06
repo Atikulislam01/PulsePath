@@ -30,6 +30,7 @@ import com.pulsepath.app.screens.OnboardingScreen
 import com.pulsepath.app.screens.PrivacyScreen
 import com.pulsepath.app.screens.ReportsScreen
 import com.pulsepath.app.screens.SettingsScreen
+import com.pulsepath.app.screens.TypingTestScreen
 import com.pulsepath.app.screens.UsageAccessScreen
 import com.pulsepath.app.screens.WeeklyTrendsScreen
 import com.pulsepath.app.screens.WelcomeScreen
@@ -156,8 +157,13 @@ fun PulsePathNavHost() {
                 InsightsScreen(
                     onBack = { navController.popBackStack() },
                     onOpenSwitching = { navController.navigate(Routes.SWITCHING) },
-                    onOpenCategories = { navController.navigate(Routes.CATEGORIES) }
+                    onOpenCategories = { navController.navigate(Routes.CATEGORIES) },
+                    onOpenTyping = { navController.navigate(Routes.TYPING) }
                 )
+            }
+
+            composable(Routes.TYPING) {
+                TypingTestScreen(onBack = { navController.popBackStack() })
             }
 
             composable(Routes.SWITCHING) {
